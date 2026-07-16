@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Dashboard">
+<title>Dashboard</title>
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23000'/%3E%3Ccircle cx='50' cy='55' r='20' fill='none' stroke='%23fff' stroke-width='6'/%3E%3Crect x='30' y='30' width='40' height='10' rx='3' fill='%23fff'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg: #F2F2F7;
+    --card: #FFFFFF;
+    --text: #1C1C1E;
+    --text-secondary: #8A8A8E;
+    --separator: rgba(60,60,67,0.15);
+    --blue: #007AFF;
+    --green: #34C759;
+    --red: #FF3B30;
+    --yellow: #FF9F0A;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg: #000000;
+      --card: #1C1C1E;
+      --text: #FFFFFF;
+      --text-secondary: #8E8E93;
+      --separator: rgba(84,84,88,0.6);
+    }
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+    padding-bottom: 60px;
+  }
+  header{
+    padding: 60px 20px 12px;
+  }
+  header h1{ font-size: 34px; font-weight:700; margin:0; letter-spacing:-0.02em; }
+  header .date{ color:var(--text-secondary); font-size:15px; margin-top:2px; }
+
+  .refresh{
+    position: fixed; top: 60px; right: 20px;
+    width:32px; height:32px; border-radius:50%;
+    background: var(--card); border:none; color: var(--blue);
+    display:flex; align-items:center; justify-content:center;
+    font-size:16px; box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+  }
+  .refresh:active{ transform: scale(0.92); }
+  .refresh.spinning{ animation: spin 0.7s linear; }
+  @keyframes spin{ from{transform:rotate(0)} to{transform:rotate(360deg)} }
+
+  .section-label{
+    font-size:13px; text-transform: uppercase; color: var(--text-secondary);
+    padding: 20px 32px 6px; letter-spacing:0.02em;
+  }
+  .group{
+    background: var(--card); margin: 0 16px; border-radius: 14px;
+    overflow:hidden;
+  }
+  .row{
+    padding: 12px 16px; border-bottom: 0.5px solid var(--separator);
+    display:flex; flex-direction:column; gap:4px;
+  }
+  .row:last-child{ border-bottom:none; }
+  .row-top{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
+  .row-title{ font-size:16px; font-weight:600; }
+  .row-time{ font-size:14px; color: var(--text-secondary); white-space:nowrap; }
+  .row-sub{ font-size:14px; color: var(--text-secondary); }
+  .row-notes{ font-size:13px; color: var(--text-secondary); margin-top:2px; }
+
+  .pill{
+    display:inline-block; font-size:11px; font-weight:600; padding:2px 8px;
+    border-radius:20px; text-transform:uppercase; letter-spacing:0.02em;
+    background: rgba(255,159,10,0.15); color: var(--yellow); width:fit-content;
+  }
+
+  .actions{ display:flex; gap:8px; margin-top:8px; }
+  .actions button{
+    flex:1; border:none; border-radius:10px; padding:9px 0; font-size:14px;
+    font-weight:600; font-family:inherit;
+  }
+  .btn-approve{ background: var(--green); color:#fff; }
+  .btn-decline{ background: rgba(255,59,48,0.12); color: var(--red); }
+  .btn-approve:active, .btn-decline:active{ transform: scale(0.97); }
+  .btn-approve:disabled, .btn-decline:disabled{ opacity:0.5; }
+
+  .empty{
+    text-align:center; color: var(--text-secondary); font-size:14px; padding: 32px 20px;
+  }
+  .day-heading{
+    font-size:13px; font-weight:600; color: var(--text-secondary);
+    padding: 16px 32px 4px;
+  }
+  .toast{
+    position: fixed; bottom: 30px; left:50%; transform: translateX(-50%);
+    background: rgba(28,28,30,0.92); color:#fff; padding:10px 18px; border-radius:12px;
+    font-size:14px; opacity:0; transition: opacity 0.25s; pointer-events:none;
+  }
+  .toast.show{ opacity:1; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Dashboard</h1>
+  <div class="date" id="today"></div>
+</header>
+<button class="refresh" id="refreshBtn" aria-label="Refresh">&#8635;</button>
+
+<div id="content">
+  <div class="empty">Loading…</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwShuc1BMKwJEorjZ-fUJaVn3QT0ciqsRoLrUhHWDsg4J8aWqjU5feQEeooFWi9L_ejWA/exec';
+
+document.getElementById('today').textContent = new Date().toLocaleDateString('default', { weekday:'long', month:'long', day:'numeric' });
+
+async function api(action, params = {}) {
+  const url = new URL(WEBAPP_URL);
+  url.searchParams.set('action', action);
+  Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
+  const res = await fetch(url);
+  return res.json();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function formatTime(dateObj) {
+  return dateObj.toLocaleTimeString('default', { hour:'numeric', minute:'2-digit' });
+}
+
+function groupByDay(items, dateFn) {
+  const groups = {};
+  items.forEach(item => {
+    const d = dateFn(item);
+    const key = d.toLocaleDateString('default', { weekday:'long', month:'long', day:'numeric' });
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(item);
+  });
+  return groups;
+}
+
+async function load() {
+  const content = document.getElementById('content');
+  try {
+    const data = await api('dashboard');
+    if (!data.ok) throw new Error(data.error);
+    render(data.pending, data.upcoming);
+  } catch (err) {
+    content.innerHTML = '<div class="empty">Could not load dashboard.<br>' + err.message + '</div>';
+  }
+}
+
+function render(pending, upcoming) {
+  const content = document.getElementById('content');
+  let html = '';
+
+  html += '<div class="section-label">Needs your response</div>';
+  if (pending.length === 0) {
+    html += '<div class="group"><div class="empty">Nothing pending</div></div>';
+  } else {
+    html += '<div class="group">';
+    pending.forEach(p => {
+      const when = new Date(p.date + 'T' + p.time + ':00');
+      html += `
+        <div class="row" data-token="${p.token}">
+          <span class="pill">Pending</span>
+          <div class="row-top">
+            <span class="row-title">${p.packageName}</span>
+            <span class="row-time">${when.toLocaleDateString('default',{month:'short', day:'numeric'})}, ${formatTime(when)}</span>
+          </div>
+          <div class="row-sub">${p.name} · ${p.email}${p.phone ? ' · ' + p.phone : ''}</div>
+          ${p.notes ? `<div class="row-notes">${p.notes}</div>` : ''}
+          <div class="actions">
+            <button class="btn-approve" onclick="handleAction('${p.token}','approve_json',this)">Approve</button>
+            <button class="btn-decline" onclick="handleAction('${p.token}','decline_json',this)">Decline</button>
+          </div>
+        </div>`;
+    });
+    html += '</div>';
+  }
+
+  html += '<div class="section-label">Upcoming sessions</div>';
+  if (upcoming.length === 0) {
+    html += '<div class="group"><div class="empty">Nothing scheduled</div></div>';
+  } else {
+    const groups = groupByDay(upcoming, u => new Date(u.start));
+    Object.keys(groups).forEach(day => {
+      html += `<div class="day-heading">${day}</div><div class="group">`;
+      groups[day].forEach(u => {
+        const start = new Date(u.start);
+        const end = new Date(u.end);
+        html += `
+          <div class="row">
+            <div class="row-top">
+              <span class="row-title">${u.packageName}</span>
+              <span class="row-time">${formatTime(start)}–${formatTime(end)}</span>
+            </div>
+            ${u.clientName ? `<div class="row-sub">${u.clientName}</div>` : ''}
+          </div>`;
+      });
+      html += '</div>';
+    });
+  }
+
+  content.innerHTML = html;
+}
+
+async function handleAction(token, action, btnEl) {
+  const row = btnEl.closest('.row');
+  row.querySelectorAll('button').forEach(b => b.disabled = true);
+  try {
+    const res = await api(action, { token });
+    if (!res.ok) throw new Error(res.error);
+    showToast(action === 'approve_json' ? 'Booking approved' : 'Booking declined');
+    load();
+  } catch (err) {
+    showToast(err.message);
+    row.querySelectorAll('button').forEach(b => b.disabled = false);
+  }
+}
+
+document.getElementById('refreshBtn').addEventListener('click', (e) => {
+  e.target.classList.add('spinning');
+  load().finally(() => setTimeout(() => e.target.classList.remove('spinning'), 600));
+});
+
+load();
+</script>
+</body>
+</html>
