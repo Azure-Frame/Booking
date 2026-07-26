@@ -6,6 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Dashboard">
+<meta name="robots" content="noindex, nofollow">
 <title>Dashboard</title>
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23000'/%3E%3Ccircle cx='50' cy='55' r='20' fill='none' stroke='%23fff' stroke-width='6'/%3E%3Crect x='30' y='30' width='40' height='10' rx='3' fill='%23fff'/%3E%3C/svg%3E">
 <style>
@@ -120,9 +121,35 @@
     font-size:14px; opacity:0; transition: opacity 0.25s; pointer-events:none;
   }
   .toast.show{ opacity:1; }
+
+  .lock-overlay{
+    position:fixed; inset:0; background:var(--bg); z-index:100;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:24px; text-align:center;
+  }
+  .lock-overlay h2{ font-size:20px; margin:0 0 6px; }
+  .lock-overlay p{ font-size:14px; color:var(--text-secondary); margin:0 0 20px; max-width:280px; }
+  .lock-overlay input{
+    width:100%; max-width:260px; padding:12px 14px; border-radius:10px; border:1px solid var(--separator);
+    background:var(--card); color:var(--text); font-size:16px; text-align:center; margin-bottom:12px;
+    font-family:inherit;
+  }
+  .lock-overlay button{
+    background:var(--blue); color:#fff; border:none; border-radius:10px; padding:12px 24px;
+    font-size:15px; font-weight:600; font-family:inherit; cursor:pointer;
+  }
+  .lock-overlay .lock-error{ color:var(--red); font-size:13px; margin-top:10px; min-height:16px; }
 </style>
 </head>
 <body>
+
+<div class="lock-overlay" id="lockOverlay">
+  <h2>Enter passphrase</h2>
+  <p>This dashboard contains client booking details. Enter your private passphrase to continue.</p>
+  <input type="password" id="secretInput" placeholder="Passphrase" autocomplete="off">
+  <button id="secretSubmit">Unlock</button>
+  <div class="lock-error" id="lockError"></div>
+</div>
 
 <header>
   <h1>Dashboard</h1>
@@ -139,9 +166,38 @@
 <div class="panel" id="panelSchedule"><div class="empty">Loading…</div></div>
 
 <div class="toast" id="toast"></div>
+<footer style="text-align:center; padding:20px; font-size:11px; color:var(--text-secondary); opacity:.7;" id="versionFooter"></footer>
 
 <script>
 const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwShuc1BMKwJEorjZ-fUJaVn3QT0ciqsRoLrUhHWDsg4J8aWqjU5feQEeooFWi9L_ejWA/exec';
+
+// Bump this to match CONFIG.VERSION in Code.gs whenever you update this file.
+const FRONTEND_VERSION = '2026-07-26.2';
+
+function escapeHtml(str) {
+  if (str === undefined || str === null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+
+function getStoredSecret() {
+  try { return localStorage.getItem('dashboardSecret') || ''; } catch (e) { return ''; }
+}
+function storeSecret(val) {
+  try { localStorage.setItem('dashboardSecret', val); } catch (e) {}
+}
+function clearStoredSecret() {
+  try { localStorage.removeItem('dashboardSecret'); } catch (e) {}
+}
+
+function renderVersionFooter(backendVersion) {
+  const el = document.getElementById('versionFooter');
+  if (!el) return;
+  const match = backendVersion && backendVersion === FRONTEND_VERSION;
+  el.textContent = 'page v' + FRONTEND_VERSION + '  ·  backend v' + (backendVersion || '?') + (match ? '  ✓' : '  ⚠ mismatch');
+  el.style.color = match ? 'var(--text-secondary)' : '#FF3B30';
+}
 
 document.getElementById('today').textContent = new Date().toLocaleDateString('default', { weekday:'long', month:'long', day:'numeric' });
 
@@ -157,6 +213,7 @@ document.querySelectorAll('.tab').forEach(tab => {
 async function api(action, params = {}) {
   const url = new URL(WEBAPP_URL);
   url.searchParams.set('action', action);
+  url.searchParams.set('secret', getStoredSecret());
   Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
   const res = await fetch(url);
   return res.json();
@@ -187,7 +244,16 @@ function groupByDay(items, dateFn) {
 async function load() {
   try {
     const data = await api('dashboard');
-    if (!data.ok) throw new Error(data.error);
+    if (!data.ok) {
+      if (data.error === 'Unauthorized') {
+        clearStoredSecret();
+        showLock('That passphrase was incorrect.');
+        return;
+      }
+      throw new Error(data.error);
+    }
+    hideLock();
+    renderVersionFooter(data.version);
     renderRequests(data.pending);
     renderSchedule(data.upcoming);
   } catch (err) {
@@ -195,6 +261,25 @@ async function load() {
     document.getElementById('panelSchedule').innerHTML = '';
   }
 }
+
+function showLock(errorMsg) {
+  document.getElementById('lockOverlay').style.display = 'flex';
+  document.getElementById('lockError').textContent = errorMsg || '';
+  document.getElementById('secretInput').focus();
+}
+function hideLock() {
+  document.getElementById('lockOverlay').style.display = 'none';
+}
+
+document.getElementById('secretSubmit').addEventListener('click', () => {
+  const val = document.getElementById('secretInput').value;
+  if (!val) return;
+  storeSecret(val);
+  load();
+});
+document.getElementById('secretInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') document.getElementById('secretSubmit').click();
+});
 
 function renderRequests(pending) {
   const badge = document.getElementById('tabRequests');
@@ -207,18 +292,19 @@ function renderRequests(pending) {
     html = '<div class="group">';
     pending.forEach(p => {
       const when = new Date(p.date + 'T' + p.time + ':00');
+      const safeToken = escapeHtml(p.token).replace(/'/g, '');
       html += `
-        <div class="row" data-token="${p.token}">
+        <div class="row" data-token="${escapeHtml(p.token)}">
           <span class="pill">Pending</span>
           <div class="row-top">
-            <span class="row-title">${p.packageName}</span>
+            <span class="row-title">${escapeHtml(p.packageName)}</span>
             <span class="row-time">${when.toLocaleDateString('default',{month:'short', day:'numeric'})}, ${formatTime(when)}</span>
           </div>
-          <div class="row-sub">${p.name} · ${p.email}${p.phone ? ' · ' + p.phone : ''}</div>
-          ${p.notes ? `<div class="row-notes">${p.notes}</div>` : ''}
+          <div class="row-sub">${escapeHtml(p.name)} · ${escapeHtml(p.email)}${p.phone ? ' · ' + escapeHtml(p.phone) : ''}</div>
+          ${p.notes ? `<div class="row-notes">${escapeHtml(p.notes)}</div>` : ''}
           <div class="actions">
-            <button class="btn-approve" onclick="handleAction('${p.token}','approve_json',this)">Approve</button>
-            <button class="btn-decline" onclick="handleAction('${p.token}','decline_json',this)">Decline</button>
+            <button class="btn-approve" onclick="handleAction('${safeToken}','approve_json',this)">Approve</button>
+            <button class="btn-decline" onclick="handleAction('${safeToken}','decline_json',this)">Decline</button>
           </div>
         </div>`;
     });
@@ -241,7 +327,7 @@ function renderSchedule(upcoming) {
       html += `
         <div class="timeline-card">
           <div class="timeline-top">
-            <span class="timeline-title">${u.packageName}${u.clientName ? ' · ' + u.clientName : ''}</span>
+            <span class="timeline-title">${escapeHtml(u.packageName)}${u.clientName ? ' · ' + escapeHtml(u.clientName) : ''}</span>
             <span class="timeline-when">${start.toLocaleDateString('default',{weekday:'short', month:'short', day:'numeric'})}</span>
           </div>
           <div class="timeline-track">
@@ -266,10 +352,10 @@ function renderSchedule(upcoming) {
         html += `
           <div class="row">
             <div class="row-top">
-              <span class="row-title">${u.packageName}</span>
+              <span class="row-title">${escapeHtml(u.packageName)}</span>
               <span class="row-time">${formatTime(start)}–${formatTime(end)}</span>
             </div>
-            ${u.clientName ? `<div class="row-sub">${u.clientName}</div>` : ''}
+            ${u.clientName ? `<div class="row-sub">${escapeHtml(u.clientName)}</div>` : ''}
             ${u.weather && u.weather.alert ? `<div class="weather-pill" style="margin-top:6px;">☔ ${u.weather.precipitationChance}% rain chance</div>` : ''}
           </div>`;
       });
