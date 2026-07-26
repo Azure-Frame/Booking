@@ -202,6 +202,17 @@
    ============================================================ */
 const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwShuc1BMKwJEorjZ-fUJaVn3QT0ciqsRoLrUhHWDsg4J8aWqjU5feQEeooFWi9L_ejWA/exec';
 
+// Bump this to match CONFIG.VERSION in Code.gs whenever you update this file.
+const FRONTEND_VERSION = '2026-07-26.1';
+
+function renderVersionFooter(backendVersion) {
+  const el = document.getElementById('versionFooter');
+  if (!el) return;
+  const match = backendVersion && backendVersion === FRONTEND_VERSION;
+  el.textContent = 'page v' + FRONTEND_VERSION + '  ·  backend v' + (backendVersion || '?') + (match ? '  ✓' : '  ⚠ mismatch — one side needs updating');
+  el.style.color = match ? 'var(--ink-dim)' : '#e08a8a';
+}
+
 let packages = [];
 let selectedPackage = null;
 let viewMonth = new Date();
@@ -229,6 +240,7 @@ async function loadPackages() {
   try {
     const data = await api('packages');
     if (!data.ok) throw new Error(data.error);
+    renderVersionFooter(data.version);
     packages = data.packages;
     el.innerHTML = '';
     packages.forEach(p => {
@@ -392,6 +404,7 @@ document.getElementById('bookingForm').addEventListener('submit', async (e) => {
 });
 
 loadPackages();
-</script>
+</script><footer style="text-align:center; padding:24px; font-size:11px; color:var(--ink-dim); opacity:.6;" id="versionFooter"></footer>
+
 </body>
 </html>
