@@ -163,6 +163,10 @@
     <h2><span class="num">03</span> Your details</h2>
     <div class="summary" id="summary"></div>
     <form id="bookingForm">
+      <div style="position:absolute; left:-9999px; top:-9999px;" aria-hidden="true">
+        <label for="website">Leave this field empty</label>
+        <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+      </div>
       <div>
         <label for="name">Full name</label>
         <input type="text" id="name" required>
@@ -185,6 +189,7 @@
           <span>I understand that outdoor sessions depend on weather and natural light, and that perfect conditions can't be guaranteed. If conditions are unsafe or unworkable, we'll discuss rescheduling together.</span>
         </label>
       </div>
+      <p style="font-size:12px; color:var(--ink-dim); margin-top:2px;">Your name, email, phone, and notes are used only to schedule and communicate about your session — never sold or shared with third parties.</p>
       <button type="submit" class="submit" id="submitBtn" disabled>Request booking</button>
       <div class="error" id="formError"></div>
     </form>
@@ -203,7 +208,14 @@
 const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwShuc1BMKwJEorjZ-fUJaVn3QT0ciqsRoLrUhHWDsg4J8aWqjU5feQEeooFWi9L_ejWA/exec';
 
 // Bump this to match CONFIG.VERSION in Code.gs whenever you update this file.
-const FRONTEND_VERSION = '2026-07-26.1';
+const FRONTEND_VERSION = '2026-07-26.2';
+
+function escapeHtml(str) {
+  if (str === undefined || str === null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
 
 function renderVersionFooter(backendVersion) {
   const el = document.getElementById('versionFooter');
@@ -247,10 +259,10 @@ async function loadPackages() {
       const card = document.createElement('div');
       card.className = 'pkg';
       card.innerHTML = `
-        <h3>${p.name}</h3>
-        <div class="meta">${p.durationMinutes} min</div>
-        <div class="desc">${p.description || ''}</div>
-        <div class="price">${p.price || ''}</div>
+        <h3>${escapeHtml(p.name)}</h3>
+        <div class="meta">${escapeHtml(p.durationMinutes)} min</div>
+        <div class="desc">${escapeHtml(p.description || '')}</div>
+        <div class="price">${escapeHtml(p.price || '')}</div>
       `;
       card.onclick = () => selectPackage(p, card);
       el.appendChild(card);
@@ -349,7 +361,7 @@ function showForm() {
   const formSection = document.getElementById('formSection');
   formSection.style.display = 'block';
   document.getElementById('summary').innerHTML = `
-    <b>${selectedPackage.name}</b><br>
+    <b>${escapeHtml(selectedPackage.name)}</b><br>
     ${new Date(selectedDate + 'T00:00:00').toLocaleDateString('default', {weekday:'long', month:'long', day:'numeric', year:'numeric'})}
     at ${formatTime(selectedTime)}
   `;
@@ -385,6 +397,7 @@ document.getElementById('bookingForm').addEventListener('submit', async (e) => {
     email: document.getElementById('email').value,
     phone: document.getElementById('phone').value,
     notes: document.getElementById('notes').value,
+    hp: document.getElementById('website').value,
   };
 
   try {
