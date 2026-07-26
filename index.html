@@ -17,7 +17,7 @@
     --line: #322e26;
     --busy: #4a3a3a;
     --available: #2e3a2c;
-    --radius: 2px;
+    --radius: 14px;
     --serif: 'Fraunces', serif;
     --sans: 'Inter', sans-serif;
   }
@@ -53,23 +53,44 @@
   h2 .num{ color:var(--accent-dim); font-size:14px; font-family: var(--sans); }
 
   #packages{
-    display:grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap:16px;
+    display:flex; gap:16px; overflow-x:auto; scroll-snap-type: x mandatory;
+    padding-bottom: 10px; -webkit-overflow-scrolling: touch;
   }
+  #packages::-webkit-scrollbar{ height:6px; }
+  #packages::-webkit-scrollbar-thumb{ background: var(--line); border-radius:3px; }
   .pkg{
-    background:var(--bg-raised); border:1px solid var(--line); border-radius:var(--radius);
-    padding:22px; cursor:pointer; transition: border-color .15s, transform .15s;
+    flex: 0 0 250px; scroll-snap-align: start; cursor:pointer;
+    border-radius: var(--radius); overflow:hidden; background: var(--bg-raised);
+    border:1px solid var(--line); transition: border-color .15s, transform .15s;
+    display:flex; flex-direction:column;
   }
   .pkg:hover{ border-color: var(--accent-dim); transform: translateY(-2px); }
   .pkg.selected{ border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
-  .pkg h3{ font-family: var(--serif); font-size:19px; margin:0 0 6px; }
-  .pkg .meta{ color:var(--ink-dim); font-size:13px; margin-bottom:10px; }
-  .pkg .desc{ font-size:14px; color:var(--ink-dim); margin-bottom:14px; }
-  .pkg .price{ font-family: var(--serif); font-size:20px; color: var(--accent); }
+  .pkg-hero{
+    position:relative; height:180px; background-size:cover; background-position:center;
+    display:flex; align-items:flex-end; padding:14px;
+  }
+  .pkg-price-pill{
+    background: var(--bg); color:var(--ink); font-family:var(--serif); font-weight:600;
+    font-size:16px; padding:6px 14px; border-radius:20px; box-shadow:0 2px 8px rgba(0,0,0,.35);
+  }
+  .pkg-duration-pill{
+    position:absolute; top:12px; right:12px; background:rgba(20,18,15,0.75); color:var(--ink);
+    font-size:11px; padding:4px 10px; border-radius:20px; backdrop-filter: blur(4px);
+  }
+  .pkg-body{ padding:16px; flex:1; display:flex; flex-direction:column; }
+  .pkg-body h3{ font-family: var(--serif); font-size:18px; margin:0 0 6px; }
+  .pkg-body .desc{ font-size:13px; color:var(--ink-dim); flex:1; }
+  .pkg-select{
+    margin-top:12px; text-align:center; font-size:13px; font-weight:600; padding:9px;
+    border-radius:8px; border:1px solid var(--line); color:var(--ink-dim);
+  }
+  .pkg.selected .pkg-select{ background:var(--accent); color:#14120f; border-color:var(--accent); }
 
   #calendarSection{ display:none; }
   .cal-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
   .cal-head button{
-    background:none; border:1px solid var(--line); color:var(--ink); border-radius: var(--radius);
+    background:none; border:1px solid var(--line); color:var(--ink); border-radius: 8px;
     padding:6px 12px; cursor:pointer; font-family: var(--sans);
   }
   .cal-head button:hover{ border-color: var(--accent); }
@@ -78,7 +99,7 @@
   .cal-dow{ text-align:center; font-size:11px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:.08em; padding-bottom:6px;}
   .cal-day{
     aspect-ratio: 1; display:flex; align-items:center; justify-content:center;
-    border-radius: var(--radius); font-size:14px; cursor:pointer; border:1px solid transparent;
+    border-radius: 8px; font-size:14px; cursor:pointer; border:1px solid transparent;
     background: var(--bg-raised); color: var(--ink-dim);
   }
   .cal-day.empty{ background:none; cursor:default; }
@@ -91,22 +112,32 @@
   #slots{ display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; }
   .slot{
     background:var(--bg-raised); border:1px solid var(--line); color:var(--ink);
-    padding:9px 16px; border-radius: var(--radius); cursor:pointer; font-family: var(--sans); font-size:14px;
+    padding:9px 16px; border-radius: 8px; cursor:pointer; font-family: var(--sans); font-size:14px;
   }
   .slot:hover{ border-color: var(--accent); }
   .slot.selected{ background: var(--accent); color:#14120f; border-color:var(--accent); }
+  .slot.booked{
+    background:none; border-color: var(--busy); color:#6b5555; cursor:not-allowed;
+    text-decoration: line-through;
+  }
+  .slot.past-slot{ opacity:.3; cursor:not-allowed; }
 
   #formSection{ display:none; }
   form{ display:grid; gap:14px; max-width: 480px; }
+  .form-step{ display:grid; gap:14px; }
   label{ font-size:13px; color: var(--ink-dim); display:block; margin-bottom:6px; }
-  input, textarea{
+  input, textarea, select{
     width:100%; background: var(--bg-raised); border:1px solid var(--line); color: var(--ink);
-    padding:11px 12px; border-radius: var(--radius); font-family: var(--sans); font-size:14px;
+    padding:11px 12px; border-radius: 8px; font-family: var(--sans); font-size:14px;
   }
-  input:focus, textarea:focus{ outline:none; border-color: var(--accent); }
+  input:focus, textarea:focus, select:focus{ outline:none; border-color: var(--accent); }
   textarea{ resize: vertical; min-height:70px; }
+  .field-hint{ font-size:12px; margin-top:4px; }
+  .field-hint.ok{ color:#8fbf8a; }
+  .field-hint.warn{ color:#e0b88a; }
+  .party-row{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
   .summary{
-    background: var(--bg-raised); border:1px solid var(--line); border-radius:var(--radius);
+    background: var(--bg-raised); border:1px solid var(--line); border-radius:12px;
     padding:16px; font-size:14px; color: var(--ink-dim); margin-bottom: 6px;
   }
   .summary b{ color: var(--ink); }
@@ -118,7 +149,7 @@
   .checkbox-row input{ width:auto; margin-top:3px; flex-shrink:0; accent-color: var(--accent); }
 
   button.submit{
-    background: var(--accent); color:#14120f; border:none; padding:14px; border-radius: var(--radius);
+    background: var(--accent); color:#14120f; border:none; padding:14px; border-radius: 10px;
     font-family: var(--sans); font-weight:600; font-size:15px; cursor:pointer; margin-top:6px;
   }
   button.submit:hover{ background:#dfb639; }
@@ -167,31 +198,60 @@
         <label for="website">Leave this field empty</label>
         <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
       </div>
-      <div>
-        <label for="name">Full name</label>
-        <input type="text" id="name" required>
+
+      <div class="form-step" id="stepContact">
+        <div>
+          <label for="name">Full name</label>
+          <input type="text" id="name" required>
+        </div>
+        <div>
+          <label for="email">Email</label>
+          <input type="email" id="email" required>
+          <div class="field-hint" id="emailHint"></div>
+        </div>
+        <div>
+          <label for="phone">Phone</label>
+          <input type="tel" id="phone" required>
+        </div>
       </div>
-      <div>
-        <label for="email">Email</label>
-        <input type="email" id="email" required>
+
+      <div class="form-step" id="stepLocation" style="display:none;">
+        <div>
+          <label for="location">Location</label>
+          <select id="location" required>
+            <option value="">Select a location…</option>
+          </select>
+        </div>
       </div>
-      <div>
-        <label for="phone">Phone</label>
-        <input type="tel" id="phone">
+
+      <div class="form-step" id="stepParty" style="display:none;">
+        <div class="party-row">
+          <div>
+            <label for="adults">Adults</label>
+            <select id="adults" required><option value="">—</option></select>
+          </div>
+          <div>
+            <label for="children">Children</label>
+            <select id="children" required><option value="">—</option></select>
+          </div>
+        </div>
       </div>
-      <div>
-        <label for="notes">Anything I should know? (location ideas, occasion, etc.)</label>
-        <textarea id="notes"></textarea>
+
+      <div class="form-step" id="stepDetails" style="display:none;">
+        <div>
+          <label for="notes">Tell me a bit about the session (required) — occasion, style, anything I should know</label>
+          <textarea id="notes" required></textarea>
+        </div>
+        <div class="disclaimer">
+          <label class="checkbox-row">
+            <input type="checkbox" id="disclaimerCheck">
+            <span>I understand that outdoor sessions depend on weather and natural light, and that perfect conditions can't be guaranteed. If conditions are unsafe or unworkable, we'll discuss rescheduling together.</span>
+          </label>
+        </div>
+        <p style="font-size:12px; color:var(--ink-dim); margin-top:2px;">Your name, email, phone, and notes are used only to schedule and communicate about your session — never sold or shared with third parties.</p>
+        <button type="submit" class="submit" id="submitBtn" disabled>Request booking</button>
+        <div class="error" id="formError"></div>
       </div>
-      <div class="disclaimer">
-        <label class="checkbox-row">
-          <input type="checkbox" id="disclaimerCheck">
-          <span>I understand that outdoor sessions depend on weather and natural light, and that perfect conditions can't be guaranteed. If conditions are unsafe or unworkable, we'll discuss rescheduling together.</span>
-        </label>
-      </div>
-      <p style="font-size:12px; color:var(--ink-dim); margin-top:2px;">Your name, email, phone, and notes are used only to schedule and communicate about your session — never sold or shared with third parties.</p>
-      <button type="submit" class="submit" id="submitBtn" disabled>Request booking</button>
-      <div class="error" id="formError"></div>
     </form>
   </section>
 
@@ -202,13 +262,9 @@
 </main>
 
 <script>
-/* ============================================================
-   CONFIG — paste the Web App URL you get from Apps Script here
-   ============================================================ */
 const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwShuc1BMKwJEorjZ-fUJaVn3QT0ciqsRoLrUhHWDsg4J8aWqjU5feQEeooFWi9L_ejWA/exec';
 
-// Bump this to match CONFIG.VERSION in Code.gs whenever you update this file.
-const FRONTEND_VERSION = '2026-07-26.2';
+const FRONTEND_VERSION = '2026-07-26.3';
 
 function escapeHtml(str) {
   if (str === undefined || str === null) return '';
@@ -226,6 +282,7 @@ function renderVersionFooter(backendVersion) {
 }
 
 let packages = [];
+let locations = [];
 let selectedPackage = null;
 let viewMonth = new Date();
 let selectedDate = null;
@@ -233,6 +290,12 @@ let selectedTime = null;
 let monthAvailability = {};
 
 const dow = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+const PKG_GRADIENTS = [
+  'linear-gradient(135deg,#3a4a3a,#1c1a16)',
+  'linear-gradient(135deg,#4a3a2c,#1c1a16)',
+  'linear-gradient(135deg,#2c3a4a,#1c1a16)',
+  'linear-gradient(135deg,#4a2c3a,#1c1a16)',
+];
 
 async function api(action, params = {}) {
   const url = new URL(WEBAPP_URL);
@@ -247,29 +310,71 @@ async function post(data) {
   return res.json();
 }
 
-async function loadPackages() {
+async function bootstrap() {
   const el = document.getElementById('packages');
   try {
-    const data = await api('packages');
+    const data = await api('bootstrap');
     if (!data.ok) throw new Error(data.error);
     renderVersionFooter(data.version);
     packages = data.packages;
-    el.innerHTML = '';
-    packages.forEach(p => {
-      const card = document.createElement('div');
-      card.className = 'pkg';
-      card.innerHTML = `
-        <h3>${escapeHtml(p.name)}</h3>
-        <div class="meta">${escapeHtml(p.durationMinutes)} min</div>
-        <div class="desc">${escapeHtml(p.description || '')}</div>
-        <div class="price">${escapeHtml(p.price || '')}</div>
-      `;
-      card.onclick = () => selectPackage(p, card);
-      el.appendChild(card);
-    });
+    locations = data.locations || [];
+    renderPackages();
+    populateLocations();
+    populatePartySelects();
   } catch (err) {
     el.innerHTML = '<div class="error">Could not load packages. ' + err.message + '</div>';
   }
+}
+
+function renderPackages() {
+  const el = document.getElementById('packages');
+  el.innerHTML = '';
+  packages.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'pkg';
+    const bg = p.photoUrl ? "background-image:url('" + p.photoUrl.replace(/'/g,"") + "')" : "background-image:" + PKG_GRADIENTS[i % PKG_GRADIENTS.length];
+    card.innerHTML = `
+      <div class="pkg-hero" style="${bg}">
+        <span class="pkg-duration-pill">${escapeHtml(p.durationMinutes)} min</span>
+        <span class="pkg-price-pill">${escapeHtml(p.price || '')}</span>
+      </div>
+      <div class="pkg-body">
+        <h3>${escapeHtml(p.name)}</h3>
+        <div class="desc">${escapeHtml(p.description || '')}</div>
+        <div class="pkg-select">Select</div>
+      </div>
+    `;
+    card.onclick = () => selectPackage(p, card);
+    el.appendChild(card);
+  });
+}
+
+function populateLocations() {
+  const sel = document.getElementById('location');
+  locations.forEach(loc => {
+    const opt = document.createElement('option');
+    opt.value = loc.name;
+    opt.textContent = loc.name;
+    sel.appendChild(opt);
+  });
+  if (locations.length === 0) {
+    const opt = document.createElement('option');
+    opt.value = '';
+    opt.textContent = 'No locations set up yet — contact me directly';
+    sel.appendChild(opt);
+  }
+}
+
+function populatePartySelects() {
+  ['adults', 'children'].forEach(id => {
+    const sel = document.getElementById(id);
+    for (let n = 1; n <= 9; n++) {
+      const opt = document.createElement('option');
+      opt.value = n;
+      opt.textContent = n;
+      sel.appendChild(opt);
+    }
+  });
 }
 
 function selectPackage(pkg, cardEl) {
@@ -292,7 +397,7 @@ async function renderCalendar() {
     viewMonth.toLocaleString('default', { month: 'long', year: 'numeric' });
 
   const grid = document.getElementById('calGrid');
-  grid.innerHTML = dow.map(d => `<div class="cal-dow">${d}</div>`).join('');
+  grid.innerHTML = dow.map(d => '<div class="cal-dow">' + d + '</div>').join('');
 
   const data = await api('month', { month: monthStr, duration: selectedPackage.durationMinutes });
   monthAvailability = data.ok ? data.days : {};
@@ -330,24 +435,31 @@ async function selectDate(dateStr, cellEl) {
   slotsEl.innerHTML = 'Loading times…';
   const data = await api('slots', { date: dateStr, duration: selectedPackage.durationMinutes });
   if (!data.ok || data.slots.length === 0) {
-    slotsEl.innerHTML = '<div class="hint">No times left that day — pick another date.</div>';
+    slotsEl.innerHTML = '<div class="hint">No times available that day — pick another date.</div>';
     return;
   }
   slotsEl.innerHTML = '';
-  data.slots.forEach(t => {
+  data.slots.forEach(s => {
     const btn = document.createElement('div');
-    btn.className = 'slot';
-    btn.textContent = formatTime(t);
-    btn.onclick = () => selectTime(t, btn);
+    btn.textContent = formatTime(s.time) + (s.status === 'booked' ? ' · Booked' : '');
+    if (s.status === 'available') {
+      btn.className = 'slot';
+      btn.onclick = () => selectTime(s.time, btn);
+    } else if (s.status === 'booked') {
+      btn.className = 'slot booked';
+    } else {
+      btn.className = 'slot past-slot';
+    }
     slotsEl.appendChild(btn);
   });
 }
 
 function formatTime(t) {
-  const [h,m] = t.split(':').map(Number);
+  const parts = t.split(':').map(Number);
+  const h = parts[0], m = parts[1];
   const ampm = h >= 12 ? 'PM' : 'AM';
   const h12 = h % 12 === 0 ? 12 : h % 12;
-  return `${h12}:${String(m).padStart(2,'0')} ${ampm}`;
+  return h12 + ':' + String(m).padStart(2,'0') + ' ' + ampm;
 }
 
 function selectTime(t, btnEl) {
@@ -360,11 +472,10 @@ function selectTime(t, btnEl) {
 function showForm() {
   const formSection = document.getElementById('formSection');
   formSection.style.display = 'block';
-  document.getElementById('summary').innerHTML = `
-    <b>${escapeHtml(selectedPackage.name)}</b><br>
-    ${new Date(selectedDate + 'T00:00:00').toLocaleDateString('default', {weekday:'long', month:'long', day:'numeric', year:'numeric'})}
-    at ${formatTime(selectedTime)}
-  `;
+  document.getElementById('summary').innerHTML =
+    '<b>' + escapeHtml(selectedPackage.name) + '</b><br>' +
+    new Date(selectedDate + 'T00:00:00').toLocaleDateString('default', {weekday:'long', month:'long', day:'numeric', year:'numeric'}) +
+    ' at ' + formatTime(selectedTime);
   formSection.scrollIntoView({behavior:'smooth'});
 }
 
@@ -376,6 +487,60 @@ document.getElementById('nextMonth').onclick = () => {
   viewMonth.setMonth(viewMonth.getMonth() + 1);
   renderCalendar();
 };
+
+function checkContactStep() {
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const locationStep = document.getElementById('stepLocation');
+  if (name && email && phone) {
+    if (locationStep.style.display === 'none') locationStep.style.display = 'grid';
+  } else {
+    locationStep.style.display = 'none';
+    document.getElementById('stepParty').style.display = 'none';
+    document.getElementById('stepDetails').style.display = 'none';
+  }
+}
+['name','email','phone'].forEach(id => {
+  document.getElementById(id).addEventListener('input', checkContactStep);
+});
+
+let emailCheckTimer = null;
+document.getElementById('email').addEventListener('blur', () => {
+  const email = document.getElementById('email').value.trim();
+  const hint = document.getElementById('emailHint');
+  hint.textContent = '';
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
+  clearTimeout(emailCheckTimer);
+  hint.textContent = 'Checking…';
+  hint.className = 'field-hint';
+  emailCheckTimer = setTimeout(async () => {
+    try {
+      const res = await api('check_email', { email });
+      if (res.ok && res.valid === false) {
+        hint.textContent = "This email domain doesn't look valid — double check for typos.";
+        hint.className = 'field-hint warn';
+      } else {
+        hint.textContent = '';
+      }
+    } catch (e) { hint.textContent = ''; }
+  }, 300);
+});
+
+document.getElementById('location').addEventListener('change', () => {
+  const partyStep = document.getElementById('stepParty');
+  partyStep.style.display = document.getElementById('location').value ? 'grid' : 'none';
+  if (!document.getElementById('location').value) document.getElementById('stepDetails').style.display = 'none';
+});
+
+function checkPartyStep() {
+  const detailsStep = document.getElementById('stepDetails');
+  const adults = document.getElementById('adults').value;
+  const children = document.getElementById('children').value;
+  detailsStep.style.display = (adults && children) ? 'grid' : 'none';
+}
+document.getElementById('adults').addEventListener('change', checkPartyStep);
+document.getElementById('children').addEventListener('change', checkPartyStep);
 
 document.getElementById('disclaimerCheck').addEventListener('change', (e) => {
   document.getElementById('submitBtn').disabled = !e.target.checked;
@@ -396,6 +561,9 @@ document.getElementById('bookingForm').addEventListener('submit', async (e) => {
     name: document.getElementById('name').value,
     email: document.getElementById('email').value,
     phone: document.getElementById('phone').value,
+    location: document.getElementById('location').value,
+    adults: document.getElementById('adults').value,
+    children: document.getElementById('children').value,
     notes: document.getElementById('notes').value,
     hp: document.getElementById('website').value,
   };
@@ -407,7 +575,7 @@ document.getElementById('bookingForm').addEventListener('submit', async (e) => {
     const conf = document.getElementById('confirmation');
     conf.style.display = 'block';
     document.getElementById('confMsg').textContent =
-      `Your request for ${res.package} on ${new Date(res.date + 'T00:00:00').toLocaleDateString('default',{weekday:'long', month:'long', day:'numeric'})} at ${formatTime(res.time)} has been sent. You'll get an email as soon as it's confirmed.`;
+      'Your request for ' + res.package + ' on ' + new Date(res.date + 'T00:00:00').toLocaleDateString('default',{weekday:'long', month:'long', day:'numeric'}) + ' at ' + formatTime(res.time) + " has been sent. You'll get an email as soon as it's confirmed.";
     conf.scrollIntoView({behavior:'smooth'});
   } catch (err) {
     errEl.textContent = err.message;
@@ -416,7 +584,7 @@ document.getElementById('bookingForm').addEventListener('submit', async (e) => {
   }
 });
 
-loadPackages();
+bootstrap();
 </script><footer style="text-align:center; padding:24px; font-size:11px; color:var(--ink-dim); opacity:.6;" id="versionFooter"></footer>
 
 </body>
