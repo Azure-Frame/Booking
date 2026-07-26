@@ -19,6 +19,7 @@
     --green: #34C759;
     --red: #FF3B30;
     --yellow: #FF9F0A;
+    --track: rgba(120,120,128,0.16);
   }
   @media (prefers-color-scheme: dark){
     :root{
@@ -27,6 +28,7 @@
       --text: #FFFFFF;
       --text-secondary: #8E8E93;
       --separator: rgba(84,84,88,0.6);
+      --track: rgba(120,120,128,0.24);
     }
   }
   *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
@@ -35,9 +37,7 @@
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
     padding-bottom: 60px;
   }
-  header{
-    padding: 60px 20px 12px;
-  }
+  header{ padding: 60px 20px 12px; }
   header h1{ font-size: 34px; font-weight:700; margin:0; letter-spacing:-0.02em; }
   header .date{ color:var(--text-secondary); font-size:15px; margin-top:2px; }
 
@@ -52,18 +52,30 @@
   .refresh.spinning{ animation: spin 0.7s linear; }
   @keyframes spin{ from{transform:rotate(0)} to{transform:rotate(360deg)} }
 
+  .tabs{
+    margin: 4px 16px 20px; background: var(--track); border-radius: 10px;
+    display:flex; padding: 2px;
+  }
+  .tab{
+    flex:1; text-align:center; padding: 7px 0; font-size:14px; font-weight:600;
+    color: var(--text-secondary); border-radius: 8px; position: relative;
+  }
+  .tab.active{ background: var(--card); color: var(--text); }
+  .tab .badge{
+    display:inline-block; min-width:16px; height:16px; padding:0 4px; margin-left:5px;
+    background: var(--red); color:#fff; font-size:11px; font-weight:700;
+    border-radius:9px; line-height:16px;
+  }
+
+  .panel{ display:none; }
+  .panel.active{ display:block; }
+
   .section-label{
     font-size:13px; text-transform: uppercase; color: var(--text-secondary);
-    padding: 20px 32px 6px; letter-spacing:0.02em;
+    padding: 4px 32px 6px; letter-spacing:0.02em;
   }
-  .group{
-    background: var(--card); margin: 0 16px; border-radius: 14px;
-    overflow:hidden;
-  }
-  .row{
-    padding: 12px 16px; border-bottom: 0.5px solid var(--separator);
-    display:flex; flex-direction:column; gap:4px;
-  }
+  .group{ background: var(--card); margin: 0 16px 20px; border-radius: 14px; overflow:hidden; }
+  .row{ padding: 12px 16px; border-bottom: 0.5px solid var(--separator); display:flex; flex-direction:column; gap:4px; }
   .row:last-child{ border-bottom:none; }
   .row-top{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
   .row-title{ font-size:16px; font-weight:600; }
@@ -76,24 +88,32 @@
     border-radius:20px; text-transform:uppercase; letter-spacing:0.02em;
     background: rgba(255,159,10,0.15); color: var(--yellow); width:fit-content;
   }
+  .weather-pill{
+    display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600;
+    padding:2px 8px; border-radius:20px; background: rgba(255,59,48,0.12); color: var(--red);
+    width:fit-content;
+  }
 
   .actions{ display:flex; gap:8px; margin-top:8px; }
-  .actions button{
-    flex:1; border:none; border-radius:10px; padding:9px 0; font-size:14px;
-    font-weight:600; font-family:inherit;
-  }
+  .actions button{ flex:1; border:none; border-radius:10px; padding:9px 0; font-size:14px; font-weight:600; font-family:inherit; }
   .btn-approve{ background: var(--green); color:#fff; }
   .btn-decline{ background: rgba(255,59,48,0.12); color: var(--red); }
   .btn-approve:active, .btn-decline:active{ transform: scale(0.97); }
   .btn-approve:disabled, .btn-decline:disabled{ opacity:0.5; }
 
-  .empty{
-    text-align:center; color: var(--text-secondary); font-size:14px; padding: 32px 20px;
+  .empty{ text-align:center; color: var(--text-secondary); font-size:14px; padding: 32px 20px; }
+  .day-heading{ font-size:13px; font-weight:600; color: var(--text-secondary); padding: 16px 32px 4px; }
+
+  .timeline-card{
+    background: var(--card); margin: 0 16px 12px; border-radius: 14px; padding: 12px 16px;
   }
-  .day-heading{
-    font-size:13px; font-weight:600; color: var(--text-secondary);
-    padding: 16px 32px 4px;
-  }
+  .timeline-top{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; }
+  .timeline-title{ font-size:15px; font-weight:600; }
+  .timeline-when{ font-size:13px; color: var(--text-secondary); }
+  .timeline-track{ position:relative; height:6px; border-radius:3px; background: var(--track); }
+  .timeline-bar{ position:absolute; top:0; height:6px; border-radius:3px; background: var(--blue); }
+  .timeline-labels{ display:flex; justify-content:space-between; font-size:10px; color: var(--text-secondary); margin-top:4px; }
+
   .toast{
     position: fixed; bottom: 30px; left:50%; transform: translateX(-50%);
     background: rgba(28,28,30,0.92); color:#fff; padding:10px 18px; border-radius:12px;
@@ -110,9 +130,13 @@
 </header>
 <button class="refresh" id="refreshBtn" aria-label="Refresh">&#8635;</button>
 
-<div id="content">
-  <div class="empty">Loading…</div>
+<div class="tabs">
+  <div class="tab active" data-tab="requests" id="tabRequests">Requests</div>
+  <div class="tab" data-tab="schedule" id="tabSchedule">Schedule</div>
 </div>
+
+<div class="panel active" id="panelRequests"><div class="empty">Loading…</div></div>
+<div class="panel" id="panelSchedule"><div class="empty">Loading…</div></div>
 
 <div class="toast" id="toast"></div>
 
@@ -120,6 +144,15 @@
 const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwShuc1BMKwJEorjZ-fUJaVn3QT0ciqsRoLrUhHWDsg4J8aWqjU5feQEeooFWi9L_ejWA/exec';
 
 document.getElementById('today').textContent = new Date().toLocaleDateString('default', { weekday:'long', month:'long', day:'numeric' });
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel' + tab.dataset.tab.charAt(0).toUpperCase() + tab.dataset.tab.slice(1)).classList.add('active');
+  });
+});
 
 async function api(action, params = {}) {
   const url = new URL(WEBAPP_URL);
@@ -152,25 +185,26 @@ function groupByDay(items, dateFn) {
 }
 
 async function load() {
-  const content = document.getElementById('content');
   try {
     const data = await api('dashboard');
     if (!data.ok) throw new Error(data.error);
-    render(data.pending, data.upcoming);
+    renderRequests(data.pending);
+    renderSchedule(data.upcoming);
   } catch (err) {
-    content.innerHTML = '<div class="empty">Could not load dashboard.<br>' + err.message + '</div>';
+    document.getElementById('panelRequests').innerHTML = '<div class="empty">Could not load dashboard.<br>' + err.message + '</div>';
+    document.getElementById('panelSchedule').innerHTML = '';
   }
 }
 
-function render(pending, upcoming) {
-  const content = document.getElementById('content');
-  let html = '';
+function renderRequests(pending) {
+  const badge = document.getElementById('tabRequests');
+  badge.innerHTML = 'Requests' + (pending.length ? '<span class="badge">' + pending.length + '</span>' : '');
 
-  html += '<div class="section-label">Needs your response</div>';
+  let html = '';
   if (pending.length === 0) {
-    html += '<div class="group"><div class="empty">Nothing pending</div></div>';
+    html = '<div class="group"><div class="empty">Nothing pending</div></div>';
   } else {
-    html += '<div class="group">';
+    html = '<div class="group">';
     pending.forEach(p => {
       const when = new Date(p.date + 'T' + p.time + ':00');
       html += `
@@ -190,8 +224,36 @@ function render(pending, upcoming) {
     });
     html += '</div>';
   }
+  document.getElementById('panelRequests').innerHTML = html;
+}
 
-  html += '<div class="section-label">Upcoming sessions</div>';
+function renderSchedule(upcoming) {
+  let html = '';
+
+  const first3 = upcoming.slice(0, 3);
+  if (first3.length > 0) {
+    html += '<div class="section-label">Next up</div>';
+    first3.forEach(u => {
+      const start = new Date(u.start);
+      const end = new Date(u.end);
+      const startPct = ((start.getHours() * 60 + start.getMinutes()) / 1440) * 100;
+      const widthPct = Math.max(((end - start) / 60000 / 1440) * 100, 1.5);
+      html += `
+        <div class="timeline-card">
+          <div class="timeline-top">
+            <span class="timeline-title">${u.packageName}${u.clientName ? ' · ' + u.clientName : ''}</span>
+            <span class="timeline-when">${start.toLocaleDateString('default',{weekday:'short', month:'short', day:'numeric'})}</span>
+          </div>
+          <div class="timeline-track">
+            <div class="timeline-bar" style="left:${startPct}%; width:${widthPct}%;"></div>
+          </div>
+          <div class="timeline-labels"><span>12am</span><span>${formatTime(start)}–${formatTime(end)}</span><span>12am</span></div>
+          ${u.weather && u.weather.alert ? `<div class="weather-pill" style="margin-top:8px;">☔ ${u.weather.precipitationChance}% rain chance</div>` : ''}
+        </div>`;
+    });
+  }
+
+  html += '<div class="section-label">Next 10 days</div>';
   if (upcoming.length === 0) {
     html += '<div class="group"><div class="empty">Nothing scheduled</div></div>';
   } else {
@@ -208,13 +270,14 @@ function render(pending, upcoming) {
               <span class="row-time">${formatTime(start)}–${formatTime(end)}</span>
             </div>
             ${u.clientName ? `<div class="row-sub">${u.clientName}</div>` : ''}
+            ${u.weather && u.weather.alert ? `<div class="weather-pill" style="margin-top:6px;">☔ ${u.weather.precipitationChance}% rain chance</div>` : ''}
           </div>`;
       });
       html += '</div>';
     });
   }
 
-  content.innerHTML = html;
+  document.getElementById('panelSchedule').innerHTML = html;
 }
 
 async function handleAction(token, action, btnEl) {
