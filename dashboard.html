@@ -2,177 +2,269 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Dashboard">
-<meta name="robots" content="noindex, nofollow">
-<title>Dashboard</title>
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23000'/%3E%3Ccircle cx='50' cy='55' r='20' fill='none' stroke='%23fff' stroke-width='6'/%3E%3Crect x='30' y='30' width='40' height='10' rx='3' fill='%23fff'/%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book a Session</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg: #F2F2F7;
-    --card: #FFFFFF;
-    --text: #1C1C1E;
-    --text-secondary: #8A8A8E;
-    --separator: rgba(60,60,67,0.15);
-    --blue: #007AFF;
-    --green: #34C759;
-    --red: #FF3B30;
-    --yellow: #FF9F0A;
-    --track: rgba(120,120,128,0.16);
+    --bg: #14120f;
+    --bg-raised: #1c1a16;
+    --ink: #f2ede4;
+    --ink-dim: #b6afa2;
+    --accent: #c9a227;
+    --accent-dim: #7a6a2c;
+    --line: #322e26;
+    --busy: #4a3a3a;
+    --available: #2e3a2c;
+    --radius: 14px;
+    --serif: 'Fraunces', serif;
+    --sans: 'Inter', sans-serif;
   }
-  @media (prefers-color-scheme: dark){
-    :root{
-      --bg: #000000;
-      --card: #1C1C1E;
-      --text: #FFFFFF;
-      --text-secondary: #8E8E93;
-      --separator: rgba(84,84,88,0.6);
-      --track: rgba(120,120,128,0.24);
-    }
-  }
-  *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+  *{ box-sizing: border-box; }
   body{
-    margin:0; background:var(--bg); color:var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
-    padding-bottom: 60px;
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family: var(--sans); line-height:1.5;
   }
-  header{ padding: 60px 20px 12px; }
-  header h1{ font-size: 34px; font-weight:700; margin:0; letter-spacing:-0.02em; }
-  header .date{ color:var(--text-secondary); font-size:15px; margin-top:2px; }
+  .sprockets{
+    display:flex; justify-content:space-between; padding: 6px 24px;
+    opacity:.35;
+  }
+  .sprockets span{ width:8px; height:8px; border-radius:50%; background: var(--ink-dim); }
+  header.hero{
+    padding: 72px 24px 48px; text-align:center; border-bottom:1px solid var(--line);
+  }
+  .eyebrow{
+    font-family: var(--sans); text-transform:uppercase; letter-spacing:.22em;
+    font-size:11px; color:var(--accent); margin-bottom:14px;
+  }
+  h1{
+    font-family: var(--serif); font-weight:600; font-size: clamp(32px, 6vw, 56px);
+    margin: 0 0 12px; letter-spacing:-0.01em;
+  }
+  .sub{ color:var(--ink-dim); max-width:520px; margin:0 auto; font-size:15px; }
 
-  .refresh{
-    position: fixed; top: 60px; right: 20px;
-    width:32px; height:32px; border-radius:50%;
-    background: var(--card); border:none; color: var(--blue);
-    display:flex; align-items:center; justify-content:center;
-    font-size:16px; box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+  main{ max-width: 960px; margin: 0 auto; padding: 56px 24px 96px; }
+  section{ margin-bottom: 64px; }
+  h2{
+    font-family: var(--serif); font-weight:600; font-size:24px; margin: 0 0 24px;
+    display:flex; align-items:center; gap:12px;
   }
-  .refresh:active{ transform: scale(0.92); }
-  .refresh.spinning{ animation: spin 0.7s linear; }
-  @keyframes spin{ from{transform:rotate(0)} to{transform:rotate(360deg)} }
+  h2 .num{ color:var(--accent-dim); font-size:14px; font-family: var(--sans); }
 
-  .tabs{
-    margin: 4px 16px 20px; background: var(--track); border-radius: 10px;
-    display:flex; padding: 2px;
+  #packages{
+    display:flex; gap:16px; overflow-x:auto; scroll-snap-type: x mandatory;
+    padding-bottom: 10px; -webkit-overflow-scrolling: touch;
   }
-  .tab{
-    flex:1; text-align:center; padding: 7px 0; font-size:14px; font-weight:600;
-    color: var(--text-secondary); border-radius: 8px; position: relative;
+  #packages::-webkit-scrollbar{ height:6px; }
+  #packages::-webkit-scrollbar-thumb{ background: var(--line); border-radius:3px; }
+  .pkg{
+    flex: 0 0 250px; scroll-snap-align: start; cursor:pointer;
+    border-radius: var(--radius); overflow:hidden; background: var(--bg-raised);
+    border:1px solid var(--line); transition: border-color .15s, transform .15s;
+    display:flex; flex-direction:column;
   }
-  .tab.active{ background: var(--card); color: var(--text); }
-  .tab .badge{
-    display:inline-block; min-width:16px; height:16px; padding:0 4px; margin-left:5px;
-    background: var(--red); color:#fff; font-size:11px; font-weight:700;
-    border-radius:9px; line-height:16px;
+  .pkg:hover{ border-color: var(--accent-dim); transform: translateY(-2px); }
+  .pkg.selected{ border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .pkg-hero{
+    position:relative; height:180px; background-size:cover; background-position:center;
+    display:flex; align-items:flex-end; padding:14px;
   }
+  .pkg-price-pill{
+    background: var(--bg); color:var(--ink); font-family:var(--serif); font-weight:600;
+    font-size:16px; padding:6px 14px; border-radius:20px; box-shadow:0 2px 8px rgba(0,0,0,.35);
+  }
+  .pkg-duration-pill{
+    position:absolute; top:12px; right:12px; background:rgba(20,18,15,0.75); color:var(--ink);
+    font-size:11px; padding:4px 10px; border-radius:20px; backdrop-filter: blur(4px);
+  }
+  .pkg-body{ padding:16px; flex:1; display:flex; flex-direction:column; }
+  .pkg-body h3{ font-family: var(--serif); font-size:18px; margin:0 0 6px; }
+  .pkg-body .desc{ font-size:13px; color:var(--ink-dim); flex:1; }
+  .pkg-select{
+    margin-top:12px; text-align:center; font-size:13px; font-weight:600; padding:9px;
+    border-radius:8px; border:1px solid var(--line); color:var(--ink-dim);
+  }
+  .pkg.selected .pkg-select{ background:var(--accent); color:#14120f; border-color:var(--accent); }
 
-  .panel{ display:none; }
-  .panel.active{ display:block; }
+  #calendarSection{ display:none; }
+  .cal-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+  .cal-head button{
+    background:none; border:1px solid var(--line); color:var(--ink); border-radius: 8px;
+    padding:6px 12px; cursor:pointer; font-family: var(--sans);
+  }
+  .cal-head button:hover{ border-color: var(--accent); }
+  .cal-month{ font-family: var(--serif); font-size:18px; }
+  .cal-grid{ display:grid; grid-template-columns: repeat(7, 1fr); gap:6px; }
+  .cal-dow{ text-align:center; font-size:11px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:.08em; padding-bottom:6px;}
+  .cal-day{
+    aspect-ratio: 1; display:flex; align-items:center; justify-content:center;
+    border-radius: 8px; font-size:14px; cursor:pointer; border:1px solid transparent;
+    background: var(--bg-raised); color: var(--ink-dim);
+  }
+  .cal-day.empty{ background:none; cursor:default; }
+  .cal-day.available{ color: var(--ink); border-color: var(--line); }
+  .cal-day.available:hover{ border-color: var(--accent); }
+  .cal-day.full{ color: #6b5f5f; text-decoration: line-through; cursor:not-allowed; }
+  .cal-day.past{ opacity:.25; cursor:not-allowed; }
+  .cal-day.selected{ background: var(--accent); color: #14120f; }
 
-  .section-label{
-    font-size:13px; text-transform: uppercase; color: var(--text-secondary);
-    padding: 4px 32px 6px; letter-spacing:0.02em;
+  #slots{ display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; }
+  .slot{
+    background:var(--bg-raised); border:1px solid var(--line); color:var(--ink);
+    padding:9px 16px; border-radius: 8px; cursor:pointer; font-family: var(--sans); font-size:14px;
   }
-  .group{ background: var(--card); margin: 0 16px 20px; border-radius: 14px; overflow:hidden; }
-  .row{ padding: 12px 16px; border-bottom: 0.5px solid var(--separator); display:flex; flex-direction:column; gap:4px; }
-  .row:last-child{ border-bottom:none; }
-  .row-top{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
-  .row-title{ font-size:16px; font-weight:600; }
-  .row-time{ font-size:14px; color: var(--text-secondary); white-space:nowrap; }
-  .row-sub{ font-size:14px; color: var(--text-secondary); }
-  .row-notes{ font-size:13px; color: var(--text-secondary); margin-top:2px; }
+  .slot:hover{ border-color: var(--accent); }
+  .slot.selected{ background: var(--accent); color:#14120f; border-color:var(--accent); }
+  .slot.booked{
+    background:none; border-color: var(--busy); color:#6b5555; cursor:not-allowed;
+    text-decoration: line-through;
+  }
+  .slot.past-slot{ opacity:.3; cursor:not-allowed; }
 
-  .pill{
-    display:inline-block; font-size:11px; font-weight:600; padding:2px 8px;
-    border-radius:20px; text-transform:uppercase; letter-spacing:0.02em;
-    background: rgba(255,159,10,0.15); color: var(--yellow); width:fit-content;
+  #formSection{ display:none; }
+  form{ display:grid; gap:14px; max-width: 480px; }
+  .form-step{ display:grid; gap:14px; }
+  label{ font-size:13px; color: var(--ink-dim); display:block; margin-bottom:6px; }
+  input, textarea, select{
+    width:100%; background: var(--bg-raised); border:1px solid var(--line); color: var(--ink);
+    padding:11px 12px; border-radius: 8px; font-family: var(--sans); font-size:14px;
   }
-  .weather-pill{
-    display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600;
-    padding:2px 8px; border-radius:20px; background: rgba(255,59,48,0.12); color: var(--red);
-    width:fit-content;
+  input:focus, textarea:focus, select:focus{ outline:none; border-color: var(--accent); }
+  textarea{ resize: vertical; min-height:70px; }
+  .field-hint{ font-size:12px; margin-top:4px; }
+  .field-hint.ok{ color:#8fbf8a; }
+  .field-hint.warn{ color:#e0b88a; }
+  .party-row{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+  .summary{
+    background: var(--bg-raised); border:1px solid var(--line); border-radius:12px;
+    padding:16px; font-size:14px; color: var(--ink-dim); margin-bottom: 6px;
   }
+  .summary b{ color: var(--ink); }
+  .disclaimer{ margin-top: 4px; }
+  .checkbox-row{
+    display:flex; align-items:flex-start; gap:10px; cursor:pointer;
+    font-size:13px; color:var(--ink-dim); line-height:1.5;
+  }
+  .checkbox-row input{ width:auto; margin-top:3px; flex-shrink:0; accent-color: var(--accent); }
 
-  .actions{ display:flex; gap:8px; margin-top:8px; }
-  .actions button{ flex:1; border:none; border-radius:10px; padding:9px 0; font-size:14px; font-weight:600; font-family:inherit; }
-  .btn-approve{ background: var(--green); color:#fff; }
-  .btn-decline{ background: rgba(255,59,48,0.12); color: var(--red); }
-  .btn-approve:active, .btn-decline:active{ transform: scale(0.97); }
-  .btn-approve:disabled, .btn-decline:disabled{ opacity:0.5; }
+  button.submit{
+    background: var(--accent); color:#14120f; border:none; padding:14px; border-radius: 10px;
+    font-family: var(--sans); font-weight:600; font-size:15px; cursor:pointer; margin-top:6px;
+  }
+  button.submit:hover{ background:#dfb639; }
+  button.submit:disabled{ background: var(--line); color: var(--ink-dim); cursor:not-allowed; }
 
-  .empty{ text-align:center; color: var(--text-secondary); font-size:14px; padding: 32px 20px; }
-  .day-heading{ font-size:13px; font-weight:600; color: var(--text-secondary); padding: 16px 32px 4px; }
-
-  .timeline-card{
-    background: var(--card); margin: 0 16px 12px; border-radius: 14px; padding: 12px 16px;
-  }
-  .timeline-top{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; }
-  .timeline-title{ font-size:15px; font-weight:600; }
-  .timeline-when{ font-size:13px; color: var(--text-secondary); }
-  .timeline-track{ position:relative; height:6px; border-radius:3px; background: var(--track); }
-  .timeline-bar{ position:absolute; top:0; height:6px; border-radius:3px; background: var(--blue); }
-  .timeline-labels{ display:flex; justify-content:space-between; font-size:10px; color: var(--text-secondary); margin-top:4px; }
-
-  .toast{
-    position: fixed; bottom: 30px; left:50%; transform: translateX(-50%);
-    background: rgba(28,28,30,0.92); color:#fff; padding:10px 18px; border-radius:12px;
-    font-size:14px; opacity:0; transition: opacity 0.25s; pointer-events:none;
-  }
-  .toast.show{ opacity:1; }
-
-  .lock-overlay{
-    position:fixed; inset:0; background:var(--bg); z-index:100;
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    padding:24px; text-align:center;
-  }
-  .lock-overlay h2{ font-size:20px; margin:0 0 6px; }
-  .lock-overlay p{ font-size:14px; color:var(--text-secondary); margin:0 0 20px; max-width:280px; }
-  .lock-overlay input{
-    width:100%; max-width:260px; padding:12px 14px; border-radius:10px; border:1px solid var(--separator);
-    background:var(--card); color:var(--text); font-size:16px; text-align:center; margin-bottom:12px;
-    font-family:inherit;
-  }
-  .lock-overlay button{
-    background:var(--blue); color:#fff; border:none; border-radius:10px; padding:12px 24px;
-    font-size:15px; font-weight:600; font-family:inherit; cursor:pointer;
-  }
-  .lock-overlay .lock-error{ color:var(--red); font-size:13px; margin-top:10px; min-height:16px; }
+  #confirmation{ display:none; text-align:center; padding: 40px 24px; }
+  #confirmation h2{ justify-content:center; }
+  .error{ color:#e08a8a; font-size:14px; margin-top:8px; }
+  .hint{ font-size:12px; color:var(--ink-dim); margin-top:8px; }
 </style>
 </head>
 <body>
 
-<div class="lock-overlay" id="lockOverlay">
-  <h2>Enter passphrase</h2>
-  <p>This dashboard contains client booking details. Enter your private passphrase to continue.</p>
-  <input type="password" id="secretInput" placeholder="Passphrase" autocomplete="off">
-  <button id="secretSubmit">Unlock</button>
-  <div class="lock-error" id="lockError"></div>
+<div class="sprockets">
+  <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
 </div>
 
-<header>
-  <h1>Dashboard</h1>
-  <div class="date" id="today"></div>
+<header class="hero">
+  <div class="eyebrow">Book a session</div>
+  <h1>Let's make something worth keeping.</h1>
+  <p class="sub">Pick a package, choose a date that works for you, and send your request — I'll confirm it personally.</p>
 </header>
-<button class="refresh" id="refreshBtn" aria-label="Refresh">&#8635;</button>
 
-<div class="tabs">
-  <div class="tab active" data-tab="requests" id="tabRequests">Requests</div>
-  <div class="tab" data-tab="schedule" id="tabSchedule">Schedule</div>
-</div>
+<main>
+  <section>
+    <h2><span class="num">01</span> Choose a package</h2>
+    <div id="packages">Loading packages…</div>
+  </section>
 
-<div class="panel active" id="panelRequests"><div class="empty">Loading…</div></div>
-<div class="panel" id="panelSchedule"><div class="empty">Loading…</div></div>
+  <section id="calendarSection">
+    <h2><span class="num">02</span> Pick a date</h2>
+    <div class="cal-head">
+      <button id="prevMonth">← Prev</button>
+      <div class="cal-month" id="calMonthLabel"></div>
+      <button id="nextMonth">Next →</button>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div id="slots"></div>
+  </section>
 
-<div class="toast" id="toast"></div>
-<footer style="text-align:center; padding:20px; font-size:11px; color:var(--text-secondary); opacity:.7;" id="versionFooter"></footer>
+  <section id="formSection">
+    <h2><span class="num">03</span> Your details</h2>
+    <div class="summary" id="summary"></div>
+    <form id="bookingForm">
+      <div style="position:absolute; left:-9999px; top:-9999px;" aria-hidden="true">
+        <label for="website">Leave this field empty</label>
+        <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+      </div>
+
+      <div class="form-step" id="stepContact">
+        <div>
+          <label for="name">Full name</label>
+          <input type="text" id="name" required>
+        </div>
+        <div>
+          <label for="email">Email</label>
+          <input type="email" id="email" required>
+          <div class="field-hint" id="emailHint"></div>
+        </div>
+        <div>
+          <label for="phone">Phone</label>
+          <input type="tel" id="phone" required>
+        </div>
+      </div>
+
+      <div class="form-step" id="stepLocation" style="display:none;">
+        <div>
+          <label for="location">Location</label>
+          <select id="location" required>
+            <option value="">Select a location…</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-step" id="stepParty" style="display:none;">
+        <div class="party-row">
+          <div>
+            <label for="adults">Adults</label>
+            <select id="adults" required><option value="">—</option></select>
+          </div>
+          <div>
+            <label for="children">Children</label>
+            <select id="children" required><option value="">—</option></select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-step" id="stepDetails" style="display:none;">
+        <div>
+          <label for="notes">Tell me a bit about the session (required) — occasion, style, anything I should know</label>
+          <textarea id="notes" required></textarea>
+        </div>
+        <div class="disclaimer">
+          <label class="checkbox-row">
+            <input type="checkbox" id="disclaimerCheck">
+            <span>I understand that outdoor sessions depend on weather and natural light, and that perfect conditions can't be guaranteed. If conditions are unsafe or unworkable, we'll discuss rescheduling together.</span>
+          </label>
+        </div>
+        <p style="font-size:12px; color:var(--ink-dim); margin-top:2px;">Your name, email, phone, and notes are used only to schedule and communicate about your session — never sold or shared with third parties.</p>
+        <button type="submit" class="submit" id="submitBtn" disabled>Request booking</button>
+        <div class="error" id="formError"></div>
+      </div>
+    </form>
+  </section>
+
+  <section id="confirmation">
+    <h2>Request sent ✔</h2>
+    <p class="sub" id="confMsg"></p>
+  </section>
+</main>
 
 <script>
 const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwShuc1BMKwJEorjZ-fUJaVn3QT0ciqsRoLrUhHWDsg4J8aWqjU5feQEeooFWi9L_ejWA/exec';
 
-// Bump this to match CONFIG.VERSION in Code.gs whenever you update this file.
-const FRONTEND_VERSION = '2026-07-26.2';
+const FRONTEND_VERSION = '2026-07-26.3';
 
 function escapeHtml(str) {
   if (str === undefined || str === null) return '';
@@ -181,211 +273,319 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
 }
 
-function getStoredSecret() {
-  try { return localStorage.getItem('dashboardSecret') || ''; } catch (e) { return ''; }
-}
-function storeSecret(val) {
-  try { localStorage.setItem('dashboardSecret', val); } catch (e) {}
-}
-function clearStoredSecret() {
-  try { localStorage.removeItem('dashboardSecret'); } catch (e) {}
-}
-
 function renderVersionFooter(backendVersion) {
   const el = document.getElementById('versionFooter');
   if (!el) return;
   const match = backendVersion && backendVersion === FRONTEND_VERSION;
-  el.textContent = 'page v' + FRONTEND_VERSION + '  ·  backend v' + (backendVersion || '?') + (match ? '  ✓' : '  ⚠ mismatch');
-  el.style.color = match ? 'var(--text-secondary)' : '#FF3B30';
+  el.textContent = 'page v' + FRONTEND_VERSION + '  ·  backend v' + (backendVersion || '?') + (match ? '  ✓' : '  ⚠ mismatch — one side needs updating');
+  el.style.color = match ? 'var(--ink-dim)' : '#e08a8a';
 }
 
-document.getElementById('today').textContent = new Date().toLocaleDateString('default', { weekday:'long', month:'long', day:'numeric' });
+let packages = [];
+let locations = [];
+let selectedPackage = null;
+let viewMonth = new Date();
+let selectedDate = null;
+let selectedTime = null;
+let monthAvailability = {};
 
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById('panel' + tab.dataset.tab.charAt(0).toUpperCase() + tab.dataset.tab.slice(1)).classList.add('active');
-  });
-});
+const dow = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+const PKG_GRADIENTS = [
+  'linear-gradient(135deg,#3a4a3a,#1c1a16)',
+  'linear-gradient(135deg,#4a3a2c,#1c1a16)',
+  'linear-gradient(135deg,#2c3a4a,#1c1a16)',
+  'linear-gradient(135deg,#4a2c3a,#1c1a16)',
+];
 
 async function api(action, params = {}) {
   const url = new URL(WEBAPP_URL);
   url.searchParams.set('action', action);
-  url.searchParams.set('secret', getStoredSecret());
   Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
   const res = await fetch(url);
   return res.json();
 }
 
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2200);
+async function post(data) {
+  const res = await fetch(WEBAPP_URL, { method: 'POST', body: JSON.stringify(data) });
+  return res.json();
 }
 
-function formatTime(dateObj) {
-  return dateObj.toLocaleTimeString('default', { hour:'numeric', minute:'2-digit' });
-}
-
-function groupByDay(items, dateFn) {
-  const groups = {};
-  items.forEach(item => {
-    const d = dateFn(item);
-    const key = d.toLocaleDateString('default', { weekday:'long', month:'long', day:'numeric' });
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(item);
-  });
-  return groups;
-}
-
-async function load() {
+async function bootstrap() {
+  const el = document.getElementById('packages');
   try {
-    const data = await api('dashboard');
-    if (!data.ok) {
-      if (data.error === 'Unauthorized') {
-        clearStoredSecret();
-        showLock('That passphrase was incorrect.');
-        return;
-      }
-      throw new Error(data.error);
-    }
-    hideLock();
+    const data = await api('bootstrap');
+    if (!data.ok) throw new Error(data.error);
     renderVersionFooter(data.version);
-    renderRequests(data.pending);
-    renderSchedule(data.upcoming);
+    packages = data.packages;
+    locations = data.locations || [];
+    renderPackages();
+    populateLocations();
+    populatePartySelects();
   } catch (err) {
-    document.getElementById('panelRequests').innerHTML = '<div class="empty">Could not load dashboard.<br>' + err.message + '</div>';
-    document.getElementById('panelSchedule').innerHTML = '';
+    el.innerHTML = '<div class="error">Could not load packages. ' + err.message + '</div>';
   }
 }
 
-function showLock(errorMsg) {
-  document.getElementById('lockOverlay').style.display = 'flex';
-  document.getElementById('lockError').textContent = errorMsg || '';
-  document.getElementById('secretInput').focus();
+function renderPackages() {
+  const el = document.getElementById('packages');
+  el.innerHTML = '';
+  packages.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'pkg';
+    const bg = p.photoUrl ? "background-image:url('" + p.photoUrl.replace(/'/g,"") + "')" : "background-image:" + PKG_GRADIENTS[i % PKG_GRADIENTS.length];
+    card.innerHTML = `
+      <div class="pkg-hero" style="${bg}">
+        <span class="pkg-duration-pill">${escapeHtml(p.durationMinutes)} min</span>
+        <span class="pkg-price-pill">${escapeHtml(p.price || '')}</span>
+      </div>
+      <div class="pkg-body">
+        <h3>${escapeHtml(p.name)}</h3>
+        <div class="desc">${escapeHtml(p.description || '')}</div>
+        <div class="pkg-select">Select</div>
+      </div>
+    `;
+    card.onclick = () => selectPackage(p, card);
+    el.appendChild(card);
+  });
 }
-function hideLock() {
-  document.getElementById('lockOverlay').style.display = 'none';
+
+function populateLocations() {
+  const sel = document.getElementById('location');
+  locations.forEach(loc => {
+    const opt = document.createElement('option');
+    opt.value = loc.name;
+    opt.textContent = loc.name;
+    sel.appendChild(opt);
+  });
+  if (locations.length === 0) {
+    const opt = document.createElement('option');
+    opt.value = '';
+    opt.textContent = 'No locations set up yet — contact me directly';
+    sel.appendChild(opt);
+  }
 }
 
-document.getElementById('secretSubmit').addEventListener('click', () => {
-  const val = document.getElementById('secretInput').value;
-  if (!val) return;
-  storeSecret(val);
-  load();
-});
-document.getElementById('secretInput').addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') document.getElementById('secretSubmit').click();
-});
+function populatePartySelects() {
+  ['adults', 'children'].forEach(id => {
+    const sel = document.getElementById(id);
+    for (let n = 1; n <= 9; n++) {
+      const opt = document.createElement('option');
+      opt.value = n;
+      opt.textContent = n;
+      sel.appendChild(opt);
+    }
+  });
+}
 
-function renderRequests(pending) {
-  const badge = document.getElementById('tabRequests');
-  badge.innerHTML = 'Requests' + (pending.length ? '<span class="badge">' + pending.length + '</span>' : '');
+function selectPackage(pkg, cardEl) {
+  selectedPackage = pkg;
+  document.querySelectorAll('.pkg').forEach(c => c.classList.remove('selected'));
+  cardEl.classList.add('selected');
+  document.getElementById('calendarSection').style.display = 'block';
+  document.getElementById('formSection').style.display = 'none';
+  selectedDate = null; selectedTime = null;
+  document.getElementById('slots').innerHTML = '';
+  renderCalendar();
+  document.getElementById('calendarSection').scrollIntoView({behavior:'smooth'});
+}
 
-  let html = '';
-  if (pending.length === 0) {
-    html = '<div class="group"><div class="empty">Nothing pending</div></div>';
+async function renderCalendar() {
+  const y = viewMonth.getFullYear();
+  const m = viewMonth.getMonth();
+  const monthStr = y + '-' + String(m+1).padStart(2,'0');
+  document.getElementById('calMonthLabel').textContent =
+    viewMonth.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = dow.map(d => '<div class="cal-dow">' + d + '</div>').join('');
+
+  const data = await api('month', { month: monthStr, duration: selectedPackage.durationMinutes });
+  monthAvailability = data.ok ? data.days : {};
+
+  const firstDay = new Date(y, m, 1).getDay();
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  for (let i=0; i<firstDay; i++) {
+    grid.innerHTML += '<div class="cal-day empty"></div>';
+  }
+  for (let d=1; d<=daysInMonth; d++) {
+    const dateStr = monthStr + '-' + String(d).padStart(2,'0');
+    const dateObj = new Date(y, m, d);
+    const count = monthAvailability[dateStr] || 0;
+    let cls = 'cal-day';
+    if (dateObj < today) cls += ' past';
+    else if (count > 0) cls += ' available';
+    else cls += ' full';
+    const cell = document.createElement('div');
+    cell.className = cls;
+    cell.textContent = d;
+    if (cls.includes('available')) {
+      cell.onclick = () => selectDate(dateStr, cell);
+    }
+    grid.appendChild(cell);
+  }
+}
+
+async function selectDate(dateStr, cellEl) {
+  selectedDate = dateStr;
+  document.querySelectorAll('.cal-day').forEach(c => c.classList.remove('selected'));
+  cellEl.classList.add('selected');
+  const slotsEl = document.getElementById('slots');
+  slotsEl.innerHTML = 'Loading times…';
+  const data = await api('slots', { date: dateStr, duration: selectedPackage.durationMinutes });
+  if (!data.ok || data.slots.length === 0) {
+    slotsEl.innerHTML = '<div class="hint">No times available that day — pick another date.</div>';
+    return;
+  }
+  slotsEl.innerHTML = '';
+  data.slots.forEach(s => {
+    const btn = document.createElement('div');
+    btn.textContent = formatTime(s.time) + (s.status === 'booked' ? ' · Booked' : '');
+    if (s.status === 'available') {
+      btn.className = 'slot';
+      btn.onclick = () => selectTime(s.time, btn);
+    } else if (s.status === 'booked') {
+      btn.className = 'slot booked';
+    } else {
+      btn.className = 'slot past-slot';
+    }
+    slotsEl.appendChild(btn);
+  });
+}
+
+function formatTime(t) {
+  const parts = t.split(':').map(Number);
+  const h = parts[0], m = parts[1];
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return h12 + ':' + String(m).padStart(2,'0') + ' ' + ampm;
+}
+
+function selectTime(t, btnEl) {
+  selectedTime = t;
+  document.querySelectorAll('.slot').forEach(s => s.classList.remove('selected'));
+  btnEl.classList.add('selected');
+  showForm();
+}
+
+function showForm() {
+  const formSection = document.getElementById('formSection');
+  formSection.style.display = 'block';
+  document.getElementById('summary').innerHTML =
+    '<b>' + escapeHtml(selectedPackage.name) + '</b><br>' +
+    new Date(selectedDate + 'T00:00:00').toLocaleDateString('default', {weekday:'long', month:'long', day:'numeric', year:'numeric'}) +
+    ' at ' + formatTime(selectedTime);
+  formSection.scrollIntoView({behavior:'smooth'});
+}
+
+document.getElementById('prevMonth').onclick = () => {
+  viewMonth.setMonth(viewMonth.getMonth() - 1);
+  renderCalendar();
+};
+document.getElementById('nextMonth').onclick = () => {
+  viewMonth.setMonth(viewMonth.getMonth() + 1);
+  renderCalendar();
+};
+
+function checkContactStep() {
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const locationStep = document.getElementById('stepLocation');
+  if (name && email && phone) {
+    if (locationStep.style.display === 'none') locationStep.style.display = 'grid';
   } else {
-    html = '<div class="group">';
-    pending.forEach(p => {
-      const when = new Date(p.date + 'T' + p.time + ':00');
-      const safeToken = escapeHtml(p.token).replace(/'/g, '');
-      html += `
-        <div class="row" data-token="${escapeHtml(p.token)}">
-          <span class="pill">Pending</span>
-          <div class="row-top">
-            <span class="row-title">${escapeHtml(p.packageName)}</span>
-            <span class="row-time">${when.toLocaleDateString('default',{month:'short', day:'numeric'})}, ${formatTime(when)}</span>
-          </div>
-          <div class="row-sub">${escapeHtml(p.name)} · ${escapeHtml(p.email)}${p.phone ? ' · ' + escapeHtml(p.phone) : ''}</div>
-          ${p.notes ? `<div class="row-notes">${escapeHtml(p.notes)}</div>` : ''}
-          <div class="actions">
-            <button class="btn-approve" onclick="handleAction('${safeToken}','approve_json',this)">Approve</button>
-            <button class="btn-decline" onclick="handleAction('${safeToken}','decline_json',this)">Decline</button>
-          </div>
-        </div>`;
-    });
-    html += '</div>';
+    locationStep.style.display = 'none';
+    document.getElementById('stepParty').style.display = 'none';
+    document.getElementById('stepDetails').style.display = 'none';
   }
-  document.getElementById('panelRequests').innerHTML = html;
 }
+['name','email','phone'].forEach(id => {
+  document.getElementById(id).addEventListener('input', checkContactStep);
+});
 
-function renderSchedule(upcoming) {
-  let html = '';
+let emailCheckTimer = null;
+document.getElementById('email').addEventListener('blur', () => {
+  const email = document.getElementById('email').value.trim();
+  const hint = document.getElementById('emailHint');
+  hint.textContent = '';
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
+  clearTimeout(emailCheckTimer);
+  hint.textContent = 'Checking…';
+  hint.className = 'field-hint';
+  emailCheckTimer = setTimeout(async () => {
+    try {
+      const res = await api('check_email', { email });
+      if (res.ok && res.valid === false) {
+        hint.textContent = "This email domain doesn't look valid — double check for typos.";
+        hint.className = 'field-hint warn';
+      } else {
+        hint.textContent = '';
+      }
+    } catch (e) { hint.textContent = ''; }
+  }, 300);
+});
 
-  const first3 = upcoming.slice(0, 3);
-  if (first3.length > 0) {
-    html += '<div class="section-label">Next up</div>';
-    first3.forEach(u => {
-      const start = new Date(u.start);
-      const end = new Date(u.end);
-      const startPct = ((start.getHours() * 60 + start.getMinutes()) / 1440) * 100;
-      const widthPct = Math.max(((end - start) / 60000 / 1440) * 100, 1.5);
-      html += `
-        <div class="timeline-card">
-          <div class="timeline-top">
-            <span class="timeline-title">${escapeHtml(u.packageName)}${u.clientName ? ' · ' + escapeHtml(u.clientName) : ''}</span>
-            <span class="timeline-when">${start.toLocaleDateString('default',{weekday:'short', month:'short', day:'numeric'})}</span>
-          </div>
-          <div class="timeline-track">
-            <div class="timeline-bar" style="left:${startPct}%; width:${widthPct}%;"></div>
-          </div>
-          <div class="timeline-labels"><span>12am</span><span>${formatTime(start)}–${formatTime(end)}</span><span>12am</span></div>
-          ${u.weather && u.weather.alert ? `<div class="weather-pill" style="margin-top:8px;">☔ ${u.weather.precipitationChance}% rain chance</div>` : ''}
-        </div>`;
-    });
-  }
+document.getElementById('location').addEventListener('change', () => {
+  const partyStep = document.getElementById('stepParty');
+  partyStep.style.display = document.getElementById('location').value ? 'grid' : 'none';
+  if (!document.getElementById('location').value) document.getElementById('stepDetails').style.display = 'none';
+});
 
-  html += '<div class="section-label">Next 10 days</div>';
-  if (upcoming.length === 0) {
-    html += '<div class="group"><div class="empty">Nothing scheduled</div></div>';
-  } else {
-    const groups = groupByDay(upcoming, u => new Date(u.start));
-    Object.keys(groups).forEach(day => {
-      html += `<div class="day-heading">${day}</div><div class="group">`;
-      groups[day].forEach(u => {
-        const start = new Date(u.start);
-        const end = new Date(u.end);
-        html += `
-          <div class="row">
-            <div class="row-top">
-              <span class="row-title">${escapeHtml(u.packageName)}</span>
-              <span class="row-time">${formatTime(start)}–${formatTime(end)}</span>
-            </div>
-            ${u.clientName ? `<div class="row-sub">${escapeHtml(u.clientName)}</div>` : ''}
-            ${u.weather && u.weather.alert ? `<div class="weather-pill" style="margin-top:6px;">☔ ${u.weather.precipitationChance}% rain chance</div>` : ''}
-          </div>`;
-      });
-      html += '</div>';
-    });
-  }
-
-  document.getElementById('panelSchedule').innerHTML = html;
+function checkPartyStep() {
+  const detailsStep = document.getElementById('stepDetails');
+  const adults = document.getElementById('adults').value;
+  const children = document.getElementById('children').value;
+  detailsStep.style.display = (adults && children) ? 'grid' : 'none';
 }
+document.getElementById('adults').addEventListener('change', checkPartyStep);
+document.getElementById('children').addEventListener('change', checkPartyStep);
 
-async function handleAction(token, action, btnEl) {
-  const row = btnEl.closest('.row');
-  row.querySelectorAll('button').forEach(b => b.disabled = true);
+document.getElementById('disclaimerCheck').addEventListener('change', (e) => {
+  document.getElementById('submitBtn').disabled = !e.target.checked;
+});
+
+document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('submitBtn');
+  const errEl = document.getElementById('formError');
+  errEl.textContent = '';
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+
+  const payload = {
+    packageId: selectedPackage.id,
+    date: selectedDate,
+    time: selectedTime,
+    name: document.getElementById('name').value,
+    email: document.getElementById('email').value,
+    phone: document.getElementById('phone').value,
+    location: document.getElementById('location').value,
+    adults: document.getElementById('adults').value,
+    children: document.getElementById('children').value,
+    notes: document.getElementById('notes').value,
+    hp: document.getElementById('website').value,
+  };
+
   try {
-    const res = await api(action, { token });
-    if (!res.ok) throw new Error(res.error);
-    showToast(action === 'approve_json' ? 'Booking approved' : 'Booking declined');
-    load();
+    const res = await post(payload);
+    if (!res.ok) throw new Error(res.error || 'Something went wrong');
+    document.querySelectorAll('section').forEach(s => s.style.display = 'none');
+    const conf = document.getElementById('confirmation');
+    conf.style.display = 'block';
+    document.getElementById('confMsg').textContent =
+      'Your request for ' + res.package + ' on ' + new Date(res.date + 'T00:00:00').toLocaleDateString('default',{weekday:'long', month:'long', day:'numeric'}) + ' at ' + formatTime(res.time) + " has been sent. You'll get an email as soon as it's confirmed.";
+    conf.scrollIntoView({behavior:'smooth'});
   } catch (err) {
-    showToast(err.message);
-    row.querySelectorAll('button').forEach(b => b.disabled = false);
+    errEl.textContent = err.message;
+    btn.disabled = false;
+    btn.textContent = 'Request booking';
   }
-}
-
-document.getElementById('refreshBtn').addEventListener('click', (e) => {
-  e.target.classList.add('spinning');
-  load().finally(() => setTimeout(() => e.target.classList.remove('spinning'), 600));
 });
 
-load();
-</script>
+bootstrap();
+</script><footer style="text-align:center; padding:24px; font-size:11px; color:var(--ink-dim); opacity:.6;" id="versionFooter"></footer>
+
 </body>
 </html>
