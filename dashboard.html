@@ -245,12 +245,9 @@ async function load() {
   try {
     const data = await api('dashboard');
     if (!data.ok) {
-      if (data.error === 'Unauthorized') {
-        clearStoredSecret();
-        showLock('That passphrase was incorrect.');
-        return;
-      }
-      throw new Error(data.error);
+      clearStoredSecret();
+      showLock(data.error || 'Something went wrong.');
+      return;
     }
     hideLock();
     renderVersionFooter(data.version);
