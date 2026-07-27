@@ -5,24 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Book a Session</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg: #14120f;
-    --bg-raised: #1c1a16;
-    --ink: #f2ede4;
-    --ink-dim: #b6afa2;
-    --accent: #c9a227;
-    --accent-dim: #7a6a2c;
-    --line: #322e26;
+    --bg: #f7f5ee;
+    --bg-raised: #ffffff;
+    --ink: #1a1a1a;
+    --ink-dim: #8a8270;
+    --accent: #b5a889;
+    --accent-dim: #948a6c;
+    --line: #e5e1d3;
     --busy: #4a3a3a;
     --available: #2e3a2c;
-    --card-panel: #f2ede4;
-    --panel-ink: #14120f;
-    --panel-ink-dim: #6b6355;
-    --panel-line: #ddd5c4;
-    --radius: 14px;
-    --serif: 'Fraunces', serif;
+    --card-panel: #ffffff;
+    --panel-ink: #1a1a1a;
+    --panel-ink-dim: #8a8270;
+    --panel-line: #ece8dc;
+    --radius: 2px;
+    --serif: 'Cormorant Garamond', serif;
+    --display: 'Cormorant Garamond', serif;
     --sans: 'Inter', sans-serif;
   }
   *{ box-sizing: border-box; }
@@ -42,12 +43,19 @@
   header.hero{
     padding: 32px 24px 48px; text-align:center; border-bottom:1px solid var(--line);
   }
-  .monogram{
-    font-family: var(--serif); font-weight:600; font-size:32px; letter-spacing:.02em;
-    color: var(--accent); margin-bottom: 20px;
+  .monogram-logo{
+    width:64px; height:64px; border-radius:2px; margin-bottom: 20px;
   }
-  .welcome-msg{ font-size:16px; margin: 0 0 6px; }
-  .instructions-msg{ font-size:14px; color: var(--ink-dim); margin: 0 0 20px; }
+  .welcome-msg{
+    font-family: var(--display); font-style: normal; font-weight: 400;
+    text-transform: uppercase; letter-spacing: .1em;
+    font-size: clamp(26px, 4.5vw, 42px); line-height:1.3;
+    margin: 0 0 16px; max-width: 620px; margin-left:auto; margin-right:auto;
+  }
+  .instructions-msg{
+    font-family: var(--serif); font-size:16px; color: var(--ink-dim); margin: 0 0 24px;
+    max-width: 480px; margin-left:auto; margin-right:auto;
+  }
   .contact-block{ display:inline-flex; flex-direction:column; gap:6px; align-items:flex-start; }
   .contact-row{ display:flex; align-items:center; gap:8px; font-size:13px; color: var(--ink-dim); }
   .contact-row svg{ flex-shrink:0; opacity:.8; }
@@ -57,10 +65,13 @@
   main{ max-width: 960px; margin: 0 auto; padding: 56px 24px 96px; }
   section{ margin-bottom: 64px; }
   h2{
-    font-family: var(--serif); font-weight:600; font-size:24px; margin: 0 0 24px;
-    display:flex; align-items:center; gap:12px;
+    font-family: var(--serif); font-weight:500; font-size:22px; margin: 0 0 24px;
+    display:flex; align-items:baseline; gap:14px; text-transform:uppercase; letter-spacing:.1em;
   }
-  h2 .num{ color:var(--accent-dim); font-size:14px; font-family: var(--sans); }
+  h2 .num{
+    color:var(--accent-dim); font-size:15px; font-family: var(--sans); font-weight:500;
+    text-transform:none; letter-spacing:.02em;
+  }
 
   #packages{
     display:grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap:20px;
@@ -76,7 +87,7 @@
     height:190px; background-size:cover; background-position:center; background-color: var(--bg-raised);
   }
   .pkg-body{ padding:18px; flex:1; display:flex; flex-direction:column; background: var(--card-panel); }
-  .pkg-body h3{ font-family: var(--serif); font-size:18px; margin:0 0 8px; color: var(--panel-ink); }
+  .pkg-body h3{ font-family: var(--serif); font-size:21px; font-weight:500; margin:0 0 8px; color: var(--panel-ink); }
   .pkg-body .desc{
     font-size:13px; color: var(--panel-ink-dim); flex:1; margin-bottom:12px;
     display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
@@ -87,10 +98,11 @@
   }
   .pkg-meta-item svg{ flex-shrink:0; opacity:.75; }
   .pkg-select{
-    text-align:center; font-size:13px; font-weight:600; padding:9px;
-    border-radius:8px; border:1px solid var(--panel-line); color: var(--panel-ink-dim);
+    text-align:center; font-size:11px; font-weight:600; padding:10px;
+    border:1px solid var(--panel-line); color: var(--panel-ink-dim);
+    text-transform: uppercase; letter-spacing: .1em; font-family: var(--sans);
   }
-  .pkg.selected .pkg-select{ background:var(--accent); color:#14120f; border-color:var(--accent); }
+  .pkg.selected .pkg-select{ background:var(--accent); color:#ffffff; border-color:var(--accent); }
 
   #locationCards{
     display:flex; gap:16px; overflow-x:auto; scroll-snap-type: x mandatory;
@@ -111,17 +123,18 @@
     color: var(--ink-dim); font-size:12px; text-transform:uppercase; letter-spacing:.08em;
   }
   .loc-body{ padding:12px 14px; background: var(--card-panel); }
-  .loc-body h4{ font-family: var(--serif); font-size:15px; margin:0; font-weight:600; color: var(--panel-ink); }
+  .loc-body h4{ font-family: var(--serif); font-size:17px; margin:0; font-weight:500; color: var(--panel-ink); }
   .loc-select{
-    margin-top:8px; text-align:center; font-size:12px; font-weight:600; padding:7px;
-    border-radius:8px; border:1px solid var(--panel-line); color:var(--panel-ink-dim);
+    margin-top:8px; text-align:center; font-size:10px; font-weight:600; padding:8px;
+    border:1px solid var(--panel-line); color:var(--panel-ink-dim);
+    text-transform: uppercase; letter-spacing: .1em; font-family: var(--sans);
   }
-  .loc.selected .loc-select{ background:var(--accent); color:#14120f; border-color:var(--accent); }
+  .loc.selected .loc-select{ background:var(--accent); color:#ffffff; border-color:var(--accent); }
 
   #calendarSection{ display:none; }
   .cal-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
   .cal-head button{
-    background:none; border:1px solid var(--line); color:var(--ink); border-radius: 8px;
+    background:none; border:1px solid var(--line); color:var(--ink); border-radius: 2px;
     padding:6px 12px; cursor:pointer; font-family: var(--sans);
   }
   .cal-head button:hover{ border-color: var(--accent); }
@@ -130,7 +143,7 @@
   .cal-dow{ text-align:center; font-size:11px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:.08em; padding-bottom:6px;}
   .cal-day{
     aspect-ratio: 1; display:flex; align-items:center; justify-content:center;
-    border-radius: 8px; font-size:14px; cursor:pointer; border:1px solid transparent;
+    border-radius: 2px; font-size:14px; cursor:pointer; border:1px solid transparent;
     background: var(--bg-raised); color: var(--ink-dim);
   }
   .cal-day.empty{ background:none; cursor:default; }
@@ -138,15 +151,15 @@
   .cal-day.available:hover{ border-color: var(--accent); }
   .cal-day.full{ color: #6b5f5f; text-decoration: line-through; cursor:not-allowed; }
   .cal-day.past{ opacity:.25; cursor:not-allowed; }
-  .cal-day.selected{ background: var(--accent); color: #14120f; }
+  .cal-day.selected{ background: var(--accent); color: #ffffff; }
 
   #slots{ display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; }
   .slot{
     background:var(--bg-raised); border:1px solid var(--line); color:var(--ink);
-    padding:9px 16px; border-radius: 8px; cursor:pointer; font-family: var(--sans); font-size:14px;
+    padding:9px 16px; border-radius: 2px; cursor:pointer; font-family: var(--sans); font-size:14px;
   }
   .slot:hover{ border-color: var(--accent); }
-  .slot.selected{ background: var(--accent); color:#14120f; border-color:var(--accent); }
+  .slot.selected{ background: var(--accent); color:#ffffff; border-color:var(--accent); }
   .slot.booked{
     background:none; border-color: var(--busy); color:#6b5555; cursor:not-allowed;
     text-decoration: line-through;
@@ -159,7 +172,7 @@
   label{ font-size:13px; color: var(--ink-dim); display:block; margin-bottom:6px; }
   input, textarea, select{
     width:100%; background: var(--bg-raised); border:1px solid var(--line); color: var(--ink);
-    padding:11px 12px; border-radius: 8px; font-family: var(--sans); font-size:14px;
+    padding:11px 12px; border-radius: 2px; font-family: var(--sans); font-size:14px;
   }
   input:focus, textarea:focus, select:focus{ outline:none; border-color: var(--accent); }
   textarea{ resize: vertical; min-height:70px; }
@@ -168,7 +181,7 @@
   .field-hint.warn{ color:#e0b88a; }
   .party-row{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
   .summary{
-    background: var(--bg-raised); border:1px solid var(--line); border-radius:12px;
+    background: var(--bg-raised); border:1px solid var(--line); border-radius:2px;
     padding:16px; font-size:14px; color: var(--ink-dim); margin-bottom: 6px;
   }
   .summary b{ color: var(--ink); }
@@ -180,10 +193,11 @@
   .checkbox-row input{ width:auto; margin-top:3px; flex-shrink:0; accent-color: var(--accent); }
 
   button.submit{
-    background: var(--accent); color:#14120f; border:none; padding:14px; border-radius: 10px;
-    font-family: var(--sans); font-weight:600; font-size:15px; cursor:pointer; margin-top:6px;
+    background: var(--accent); color:#ffffff; border:none; padding:15px; border-radius: 2px;
+    font-family: var(--sans); font-weight:600; font-size:12px; cursor:pointer; margin-top:6px;
+    text-transform: uppercase; letter-spacing: .12em;
   }
-  button.submit:hover{ background:#dfb639; }
+  button.submit:hover{ background:var(--accent-dim); }
   button.submit:disabled{ background: var(--line); color: var(--ink-dim); cursor:not-allowed; }
 
   #confirmation{ display:none; text-align:center; padding: 40px 24px; }
@@ -204,11 +218,11 @@
 </div>
 
 <header class="hero">
-  <div class="monogram" id="monogram">YS</div>
+  <img class="monogram-logo" id="monogramLogo" src="data:image/jpeg;base64,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" alt="The Azure Frame logo">
   <p class="welcome-msg" id="welcomeMsg"></p>
   <p class="instructions-msg" id="instructionsMsg"></p>
   <div class="contact-block">
-    <div class="contact-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20 15 15 0 010-20"/></svg><span id="contactWebsite"></span></div>
+    <div class="contact-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20 15 15 0 010-20"/></svg><a id="contactWebsite" href="#" target="_blank"></a></div>
     <div class="contact-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 6 10-6"/></svg><a id="contactEmail" href="#"></a></div>
     <div class="contact-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .3 2 .7 2.9a2 2 0 01-.4 2.1L8 10a16 16 0 006 6l1.3-1.4a2 2 0 012.1-.4c.9.4 1.9.6 2.9.7a2 2 0 011.7 2z"/></svg><a id="contactPhone" href="#"></a></div>
     <div class="contact-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg><a id="contactWhatsapp" href="#" target="_blank">Message on WhatsApp</a></div>
@@ -311,7 +325,7 @@ const BUSINESS = {
   monogram: 'AF',
   welcome: 'Welcome to the booking site for The Azure Frame!',
   instructions: 'Please follow the steps below to book a session — or send a WhatsApp message directly if you have any questions first.',
-  website: 'PASTE_YOUR_PIXIESET_URL_HERE',
+  website: 'azureframe.mypixieset.com',
   email: 'jj-bottaro@hotmail.com',
   phone: '+297 5603103',
   whatsappNumber: '2975603103', // digits only, no + or spaces
@@ -320,10 +334,10 @@ const BUSINESS = {
 };
 
 function renderBusinessHeader() {
-  document.getElementById('monogram').textContent = BUSINESS.monogram;
   document.getElementById('welcomeMsg').textContent = BUSINESS.welcome;
   document.getElementById('instructionsMsg').textContent = BUSINESS.instructions;
   document.getElementById('contactWebsite').textContent = BUSINESS.website;
+  document.getElementById('contactWebsite').href = 'https://' + BUSINESS.website.replace(/^https?:\/\//, '');
   document.getElementById('contactEmail').textContent = BUSINESS.email;
   document.getElementById('contactEmail').href = 'mailto:' + BUSINESS.email;
   document.getElementById('contactPhone').textContent = BUSINESS.phone;
@@ -366,10 +380,10 @@ let monthAvailability = {};
 
 const dow = ['Su','Mo','Tu','We','Th','Fr','Sa'];
 const PKG_GRADIENTS = [
-  'linear-gradient(135deg,#3a4a3a,#1c1a16)',
-  'linear-gradient(135deg,#4a3a2c,#1c1a16)',
-  'linear-gradient(135deg,#2c3a4a,#1c1a16)',
-  'linear-gradient(135deg,#4a2c3a,#1c1a16)',
+  'linear-gradient(135deg,#3a342a,#141210)',
+  'linear-gradient(135deg,#2e2b26,#141210)',
+  'linear-gradient(135deg,#332f28,#141210)',
+  'linear-gradient(135deg,#292420,#141210)',
 ];
 
 async function api(action, params = {}) {
