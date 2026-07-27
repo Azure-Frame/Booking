@@ -353,7 +353,7 @@ function renderBusinessHeader() {
   else document.getElementById('socialFacebook').style.display = 'none';
 }
 
-const FRONTEND_VERSION = '2026-07-26.3';
+const FRONTEND_VERSION = '2026-07-27.1';
 
 function escapeHtml(str) {
   if (str === undefined || str === null) return '';
@@ -421,9 +421,8 @@ function renderPackages() {
   packages.forEach((p, i) => {
     const card = document.createElement('div');
     card.className = 'pkg';
-    const bg = p.photoUrl ? "background-image:url('" + p.photoUrl.replace(/'/g,"") + "')" : "background-image:" + PKG_GRADIENTS[i % PKG_GRADIENTS.length];
     card.innerHTML = `
-      <div class="pkg-hero" style="${bg}"></div>
+      <div class="pkg-hero"></div>
       <div class="pkg-body">
         <h3>${escapeHtml(p.name)}</h3>
         <div class="desc">${escapeHtml(p.description || '')}</div>
@@ -435,6 +434,15 @@ function renderPackages() {
         <div class="pkg-select">Select</div>
       </div>
     `;
+    // Set the background image via the style *property* (not an HTML string) so a
+    // photo_url containing quotes or other special characters can never break out
+    // of an HTML attribute and inject markup.
+    const hero = card.querySelector('.pkg-hero');
+    if (p.photoUrl) {
+      hero.style.backgroundImage = "url('" + p.photoUrl + "')";
+    } else {
+      hero.style.backgroundImage = PKG_GRADIENTS[i % PKG_GRADIENTS.length];
+    }
     card.onclick = () => selectPackage(p, card);
     el.appendChild(card);
   });
@@ -450,14 +458,21 @@ function populateLocations() {
   locations.forEach((loc, i) => {
     const card = document.createElement('div');
     card.className = 'loc';
-    const bg = loc.photoUrl ? "background-image:url('" + loc.photoUrl.replace(/'/g,"") + "')" : "background:" + PKG_GRADIENTS[i % PKG_GRADIENTS.length];
     card.innerHTML = `
-      <div class="loc-hero" style="${bg}">${loc.photoUrl ? '' : 'Photo coming soon'}</div>
+      <div class="loc-hero">${loc.photoUrl ? '' : 'Photo coming soon'}</div>
       <div class="loc-body">
         <h4>${escapeHtml(loc.name)}</h4>
         <div class="loc-select">Select</div>
       </div>
     `;
+    const hero = card.querySelector('.loc-hero');
+    if (loc.photoUrl) {
+      hero.style.backgroundImage = "url('" + loc.photoUrl + "')";
+      hero.style.backgroundSize = 'cover';
+      hero.style.backgroundPosition = 'center';
+    } else {
+      hero.style.background = PKG_GRADIENTS[i % PKG_GRADIENTS.length];
+    }
     card.onclick = () => selectLocation(loc, card);
     el.appendChild(card);
   });
