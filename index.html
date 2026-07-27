@@ -17,6 +17,10 @@
     --line: #322e26;
     --busy: #4a3a3a;
     --available: #2e3a2c;
+    --card-panel: #f2ede4;
+    --panel-ink: #14120f;
+    --panel-ink-dim: #6b6355;
+    --panel-line: #ddd5c4;
     --radius: 14px;
     --serif: 'Fraunces', serif;
     --sans: 'Inter', sans-serif;
@@ -30,19 +34,25 @@
     display:flex; justify-content:space-between; padding: 6px 24px;
     opacity:.35;
   }
-  .sprockets span{ width:8px; height:8px; border-radius:50%; background: var(--ink-dim); }
+  .sprockets{
+    display:flex; justify-content:center; gap:16px; padding: 28px 24px 0;
+  }
+  .social-icon{ color: var(--ink-dim); display:flex; }
+  .social-icon:hover{ color: var(--accent); }
   header.hero{
-    padding: 72px 24px 48px; text-align:center; border-bottom:1px solid var(--line);
+    padding: 32px 24px 48px; text-align:center; border-bottom:1px solid var(--line);
   }
-  .eyebrow{
-    font-family: var(--sans); text-transform:uppercase; letter-spacing:.22em;
-    font-size:11px; color:var(--accent); margin-bottom:14px;
+  .monogram{
+    font-family: var(--serif); font-weight:600; font-size:32px; letter-spacing:.02em;
+    color: var(--accent); margin-bottom: 20px;
   }
-  h1{
-    font-family: var(--serif); font-weight:600; font-size: clamp(32px, 6vw, 56px);
-    margin: 0 0 12px; letter-spacing:-0.01em;
-  }
-  .sub{ color:var(--ink-dim); max-width:520px; margin:0 auto; font-size:15px; }
+  .welcome-msg{ font-size:16px; margin: 0 0 6px; }
+  .instructions-msg{ font-size:14px; color: var(--ink-dim); margin: 0 0 20px; }
+  .contact-block{ display:inline-flex; flex-direction:column; gap:6px; align-items:flex-start; }
+  .contact-row{ display:flex; align-items:center; gap:8px; font-size:13px; color: var(--ink-dim); }
+  .contact-row svg{ flex-shrink:0; opacity:.8; }
+  .contact-row a{ color: var(--ink-dim); text-decoration:none; }
+  .contact-row a:hover{ color: var(--accent); }
 
   main{ max-width: 960px; margin: 0 auto; padding: 56px 24px 96px; }
   section{ margin-bottom: 64px; }
@@ -53,37 +63,32 @@
   h2 .num{ color:var(--accent-dim); font-size:14px; font-family: var(--sans); }
 
   #packages{
-    display:flex; gap:16px; overflow-x:auto; scroll-snap-type: x mandatory;
-    padding-bottom: 10px; -webkit-overflow-scrolling: touch;
+    display:grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap:20px;
   }
-  #packages::-webkit-scrollbar{ height:6px; }
-  #packages::-webkit-scrollbar-thumb{ background: var(--line); border-radius:3px; }
   .pkg{
-    flex: 0 0 250px; scroll-snap-align: start; cursor:pointer;
-    border-radius: var(--radius); overflow:hidden; background: var(--bg-raised);
+    cursor:pointer; border-radius: var(--radius); overflow:hidden;
     border:1px solid var(--line); transition: border-color .15s, transform .15s;
     display:flex; flex-direction:column;
   }
   .pkg:hover{ border-color: var(--accent-dim); transform: translateY(-2px); }
   .pkg.selected{ border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
   .pkg-hero{
-    position:relative; height:180px; background-size:cover; background-position:center;
-    display:flex; align-items:flex-end; padding:14px;
+    height:190px; background-size:cover; background-position:center; background-color: var(--bg-raised);
   }
-  .pkg-price-pill{
-    background: var(--bg); color:var(--ink); font-family:var(--serif); font-weight:600;
-    font-size:16px; padding:6px 14px; border-radius:20px; box-shadow:0 2px 8px rgba(0,0,0,.35);
+  .pkg-body{ padding:18px; flex:1; display:flex; flex-direction:column; background: var(--card-panel); }
+  .pkg-body h3{ font-family: var(--serif); font-size:18px; margin:0 0 8px; color: var(--panel-ink); }
+  .pkg-body .desc{
+    font-size:13px; color: var(--panel-ink-dim); flex:1; margin-bottom:12px;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
   }
-  .pkg-duration-pill{
-    position:absolute; top:12px; right:12px; background:rgba(20,18,15,0.75); color:var(--ink);
-    font-size:11px; padding:4px 10px; border-radius:20px; backdrop-filter: blur(4px);
+  .pkg-meta{ display:flex; flex-wrap:wrap; gap:14px; margin-bottom:12px; }
+  .pkg-meta-item{
+    display:flex; align-items:center; gap:5px; font-size:12px; color: var(--panel-ink-dim);
   }
-  .pkg-body{ padding:16px; flex:1; display:flex; flex-direction:column; }
-  .pkg-body h3{ font-family: var(--serif); font-size:18px; margin:0 0 6px; }
-  .pkg-body .desc{ font-size:13px; color:var(--ink-dim); flex:1; }
+  .pkg-meta-item svg{ flex-shrink:0; opacity:.75; }
   .pkg-select{
-    margin-top:12px; text-align:center; font-size:13px; font-weight:600; padding:9px;
-    border-radius:8px; border:1px solid var(--line); color:var(--ink-dim);
+    text-align:center; font-size:13px; font-weight:600; padding:9px;
+    border-radius:8px; border:1px solid var(--panel-line); color: var(--panel-ink-dim);
   }
   .pkg.selected .pkg-select{ background:var(--accent); color:#14120f; border-color:var(--accent); }
 
@@ -105,11 +110,11 @@
     display:flex; align-items:center; justify-content:center;
     color: var(--ink-dim); font-size:12px; text-transform:uppercase; letter-spacing:.08em;
   }
-  .loc-body{ padding:12px 14px; }
-  .loc-body h4{ font-family: var(--serif); font-size:15px; margin:0; font-weight:600; }
+  .loc-body{ padding:12px 14px; background: var(--card-panel); }
+  .loc-body h4{ font-family: var(--serif); font-size:15px; margin:0; font-weight:600; color: var(--panel-ink); }
   .loc-select{
     margin-top:8px; text-align:center; font-size:12px; font-weight:600; padding:7px;
-    border-radius:8px; border:1px solid var(--line); color:var(--ink-dim);
+    border-radius:8px; border:1px solid var(--panel-line); color:var(--panel-ink-dim);
   }
   .loc.selected .loc-select{ background:var(--accent); color:#14120f; border-color:var(--accent); }
 
@@ -190,13 +195,24 @@
 <body>
 
 <div class="sprockets">
-  <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+  <a href="#" id="socialInstagram" target="_blank" class="social-icon" aria-label="Instagram">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>
+  </a>
+  <a href="#" id="socialFacebook" target="_blank" class="social-icon" aria-label="Facebook">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+  </a>
 </div>
 
 <header class="hero">
-  <div class="eyebrow">Book a session</div>
-  <h1>Let's make something worth keeping.</h1>
-  <p class="sub">Pick a package, choose a date that works for you, and send your request — I'll confirm it personally.</p>
+  <div class="monogram" id="monogram">YS</div>
+  <p class="welcome-msg" id="welcomeMsg"></p>
+  <p class="instructions-msg" id="instructionsMsg"></p>
+  <div class="contact-block">
+    <div class="contact-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20 15 15 0 010-20"/></svg><span id="contactWebsite"></span></div>
+    <div class="contact-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 6 10-6"/></svg><a id="contactEmail" href="#"></a></div>
+    <div class="contact-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .3 2 .7 2.9a2 2 0 01-.4 2.1L8 10a16 16 0 006 6l1.3-1.4a2 2 0 012.1-.4c.9.4 1.9.6 2.9.7a2 2 0 011.7 2z"/></svg><a id="contactPhone" href="#"></a></div>
+    <div class="contact-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg><a id="contactWhatsapp" href="#" target="_blank">Message on WhatsApp</a></div>
+  </div>
 </header>
 
 <main>
@@ -289,6 +305,40 @@
 <script>
 const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwShuc1BMKwJEorjZ-fUJaVn3QT0ciqsRoLrUhHWDsg4J8aWqjU5feQEeooFWi9L_ejWA/exec';
 
+// ---- Fill these in with your real info ----
+const BUSINESS = {
+  name: 'The Azure Frame',
+  monogram: 'AF',
+  welcome: 'Welcome to the booking site for The Azure Frame!',
+  instructions: 'Please follow the steps below to book a session — or send a WhatsApp message directly if you have any questions first.',
+  website: 'PASTE_YOUR_PIXIESET_URL_HERE',
+  email: 'jj-bottaro@hotmail.com',
+  phone: '+297 5603103',
+  whatsappNumber: '2975603103', // digits only, no + or spaces
+  instagramUrl: 'https://instagram.com/the_azure_frame',
+  facebookUrl: '',
+};
+
+function renderBusinessHeader() {
+  document.getElementById('monogram').textContent = BUSINESS.monogram;
+  document.getElementById('welcomeMsg').textContent = BUSINESS.welcome;
+  document.getElementById('instructionsMsg').textContent = BUSINESS.instructions;
+  document.getElementById('contactWebsite').textContent = BUSINESS.website;
+  document.getElementById('contactEmail').textContent = BUSINESS.email;
+  document.getElementById('contactEmail').href = 'mailto:' + BUSINESS.email;
+  document.getElementById('contactPhone').textContent = BUSINESS.phone;
+  document.getElementById('contactPhone').href = 'tel:' + BUSINESS.phone.replace(/[^\d+]/g, '');
+  if (BUSINESS.whatsappNumber) {
+    document.getElementById('contactWhatsapp').href = 'https://wa.me/' + BUSINESS.whatsappNumber;
+  } else {
+    document.getElementById('contactWhatsapp').style.display = 'none';
+  }
+  if (BUSINESS.instagramUrl) document.getElementById('socialInstagram').href = BUSINESS.instagramUrl;
+  else document.getElementById('socialInstagram').style.display = 'none';
+  if (BUSINESS.facebookUrl) document.getElementById('socialFacebook').href = BUSINESS.facebookUrl;
+  else document.getElementById('socialFacebook').style.display = 'none';
+}
+
 const FRONTEND_VERSION = '2026-07-26.3';
 
 function escapeHtml(str) {
@@ -359,13 +409,15 @@ function renderPackages() {
     card.className = 'pkg';
     const bg = p.photoUrl ? "background-image:url('" + p.photoUrl.replace(/'/g,"") + "')" : "background-image:" + PKG_GRADIENTS[i % PKG_GRADIENTS.length];
     card.innerHTML = `
-      <div class="pkg-hero" style="${bg}">
-        <span class="pkg-duration-pill">${escapeHtml(p.durationMinutes)} min</span>
-        <span class="pkg-price-pill">${escapeHtml(p.price || '')}</span>
-      </div>
+      <div class="pkg-hero" style="${bg}"></div>
       <div class="pkg-body">
         <h3>${escapeHtml(p.name)}</h3>
         <div class="desc">${escapeHtml(p.description || '')}</div>
+        <div class="pkg-meta">
+          <span class="pkg-meta-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>${escapeHtml(p.durationMinutes)} min</span>
+          ${p.price ? `<span class="pkg-meta-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>${escapeHtml(p.price)}</span>` : ''}
+          ${p.outdoor ? `<span class="pkg-meta-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Outdoor</span>` : ''}
+        </div>
         <div class="pkg-select">Select</div>
       </div>
     `;
@@ -619,6 +671,7 @@ document.getElementById('bookingForm').addEventListener('submit', async (e) => {
 });
 
 bootstrap();
+renderBusinessHeader();
 </script><footer style="text-align:center; padding:24px; font-size:11px; color:var(--ink-dim); opacity:.6;" id="versionFooter"></footer>
 
 </body>
