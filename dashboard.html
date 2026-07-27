@@ -156,6 +156,7 @@
   <div class="date" id="today"></div>
 </header>
 <button class="refresh" id="refreshBtn" aria-label="Refresh">&#8635;</button>
+<button class="refresh" id="lockBtn" aria-label="Lock" style="right:60px;">&#128274;</button>
 
 <div class="tabs">
   <div class="tab active" data-tab="requests" id="tabRequests">Requests</div>
@@ -172,7 +173,7 @@
 const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwShuc1BMKwJEorjZ-fUJaVn3QT0ciqsRoLrUhHWDsg4J8aWqjU5feQEeooFWi9L_ejWA/exec';
 
 // Bump this to match CONFIG.VERSION in Code.gs whenever you update this file.
-const FRONTEND_VERSION = '2026-07-26.3';
+const FRONTEND_VERSION = '2026-07-27.1';
 
 function escapeHtml(str) {
   if (str === undefined || str === null) return '';
@@ -377,6 +378,11 @@ async function handleAction(token, action, btnEl) {
     row.querySelectorAll('button').forEach(b => b.disabled = false);
   }
 }
+
+document.getElementById('lockBtn').addEventListener('click', () => {
+  clearStoredSecret();
+  showLock('');
+});
 
 document.getElementById('refreshBtn').addEventListener('click', (e) => {
   e.target.classList.add('spinning');
