@@ -124,6 +124,11 @@
   }
   .loc-body{ padding:12px 14px; background: var(--card-panel); }
   .loc-body h4{ font-family: var(--serif); font-size:17px; margin:0; font-weight:500; color: var(--panel-ink); }
+  .loc-map-link{
+    display:block; font-size:11px; color: var(--panel-ink-dim); text-decoration:none;
+    margin-top:4px;
+  }
+  .loc-map-link:hover{ color: var(--accent); text-decoration:underline; }
   .loc-select{
     margin-top:8px; text-align:center; font-size:10px; font-weight:600; padding:8px;
     border:1px solid var(--panel-line); color:var(--panel-ink-dim);
@@ -364,7 +369,7 @@ function renderBusinessHeader() {
   else document.getElementById('socialFacebook').style.display = 'none';
 }
 
-const FRONTEND_VERSION = '2026-07-27.3';
+const FRONTEND_VERSION = '2026-07-27.4';
 
 function escapeHtml(str) {
   if (str === undefined || str === null) return '';
@@ -386,6 +391,7 @@ let locations = [];
 let selectedPackage = null;
 let viewMonth = new Date();
 let selectedDate = null;
+let selectedLocationMapLink = '';
 let selectedTime = null;
 let monthAvailability = {};
 
@@ -470,6 +476,7 @@ function populateLocations() {
       <div class="loc-hero">${loc.photoUrl ? '' : 'Photo coming soon'}</div>
       <div class="loc-body">
         <h4>${escapeHtml(loc.name)}</h4>
+        ${loc.mapLink ? `<a href="${escapeHtml(loc.mapLink)}" target="_blank" class="loc-map-link" onclick="event.stopPropagation()">View on map ↗</a>` : ''}
         <div class="loc-select">Select</div>
       </div>
     `;
@@ -504,6 +511,7 @@ function populateLocations() {
 
 function selectLocation(loc, cardEl) {
   document.getElementById('location').value = loc.name;
+  selectedLocationMapLink = loc.mapLink || '';
   document.getElementById('customLocationName').value = '';
   document.getElementById('customLocationMap').value = '';
   document.getElementById('customLocationFields').style.display = 'none';
@@ -514,6 +522,7 @@ function selectLocation(loc, cardEl) {
 
 function selectCustomLocation(cardEl) {
   document.getElementById('location').value = '';
+  selectedLocationMapLink = '';
   document.querySelectorAll('.loc').forEach(c => c.classList.remove('selected'));
   cardEl.classList.add('selected');
   document.getElementById('customLocationFields').style.display = 'grid';
@@ -524,6 +533,7 @@ function selectCustomLocation(cardEl) {
 function checkCustomLocationStep() {
   const name = document.getElementById('customLocationName').value.trim();
   const mapLink = document.getElementById('customLocationMap').value.trim();
+  selectedLocationMapLink = mapLink;
   if (name && mapLink) {
     document.getElementById('location').value = name;
     document.getElementById('stepParty').style.display = 'grid';
@@ -726,7 +736,7 @@ document.getElementById('bookingForm').addEventListener('submit', async (e) => {
     email: document.getElementById('email').value,
     phone: document.getElementById('phone').value,
     location: document.getElementById('location').value,
-    locationMapLink: document.getElementById('customLocationMap').value,
+    locationMapLink: selectedLocationMapLink,
     adults: document.getElementById('adults').value,
     children: document.getElementById('children').value,
     notes: document.getElementById('notes').value,
