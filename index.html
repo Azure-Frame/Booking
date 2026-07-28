@@ -277,6 +277,17 @@
           <div id="locationCards"></div>
           <input type="hidden" id="location" required>
         </div>
+        <div id="customLocationFields" class="form-step" style="display:none;">
+          <div>
+            <label for="customLocationName">Preferred location name</label>
+            <input type="text" id="customLocationName" placeholder="e.g. Boca Catalina Beach">
+          </div>
+          <div>
+            <label for="customLocationMap">Google Maps link</label>
+            <input type="url" id="customLocationMap" placeholder="Paste a Google Maps pin link">
+            <div class="field-hint" id="customLocationHint">Open the spot in Google Maps, tap Share, and copy the link here.</div>
+          </div>
+        </div>
       </div>
 
       <div class="form-step" id="stepParty" style="display:none;">
@@ -353,7 +364,7 @@ function renderBusinessHeader() {
   else document.getElementById('socialFacebook').style.display = 'none';
 }
 
-const FRONTEND_VERSION = '2026-07-27.2';
+const FRONTEND_VERSION = '2026-07-27.3';
 
 function escapeHtml(str) {
   if (str === undefined || str === null) return '';
@@ -452,10 +463,6 @@ function renderPackages() {
 function populateLocations() {
   const el = document.getElementById('locationCards');
   el.innerHTML = '';
-  if (locations.length === 0) {
-    el.innerHTML = '<div class="hint">No locations set up yet — contact me directly to arrange one.</div>';
-    return;
-  }
   locations.forEach((loc, i) => {
     const card = document.createElement('div');
     card.className = 'loc';
@@ -469,24 +476,64 @@ function populateLocations() {
     const hero = card.querySelector('.loc-hero');
     if (loc.photoUrl) {
       hero.style.backgroundImage = "url('" + loc.photoUrl + "')";
-      hero.style.backgroundPosition = loc.photoPosition || 'center';
       hero.style.backgroundSize = 'cover';
-      hero.style.backgroundPosition = 'center';
+      hero.style.backgroundPosition = loc.photoPosition || 'center';
     } else {
       hero.style.background = PKG_GRADIENTS[i % PKG_GRADIENTS.length];
     }
     card.onclick = () => selectLocation(loc, card);
     el.appendChild(card);
   });
+
+  // Always offer a "somewhere else" option, even if no preset locations exist yet
+  const customCard = document.createElement('div');
+  customCard.className = 'loc';
+  customCard.id = 'customLocationCard';
+  customCard.innerHTML = `
+    <div class="loc-hero" style="background:var(--track,#e5e1d3); display:flex; align-items:center; justify-content:center; color:var(--panel-ink-dim);">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7z"/><circle cx="12" cy="9" r="2.5"/><path d="M9 21h6" stroke-dasharray="2 2"/></svg>
+    </div>
+    <div class="loc-body">
+      <h4>Somewhere else</h4>
+      <div class="loc-select">Choose your own</div>
+    </div>
+  `;
+  customCard.onclick = () => selectCustomLocation(customCard);
+  el.appendChild(customCard);
 }
 
 function selectLocation(loc, cardEl) {
   document.getElementById('location').value = loc.name;
+  document.getElementById('customLocationName').value = '';
+  document.getElementById('customLocationMap').value = '';
+  document.getElementById('customLocationFields').style.display = 'none';
   document.querySelectorAll('.loc').forEach(c => c.classList.remove('selected'));
   cardEl.classList.add('selected');
-  const partyStep = document.getElementById('stepParty');
-  partyStep.style.display = 'grid';
+  document.getElementById('stepParty').style.display = 'grid';
 }
+
+function selectCustomLocation(cardEl) {
+  document.getElementById('location').value = '';
+  document.querySelectorAll('.loc').forEach(c => c.classList.remove('selected'));
+  cardEl.classList.add('selected');
+  document.getElementById('customLocationFields').style.display = 'grid';
+  document.getElementById('stepParty').style.display = 'none';
+  document.getElementById('customLocationName').focus();
+}
+
+function checkCustomLocationStep() {
+  const name = document.getElementById('customLocationName').value.trim();
+  const mapLink = document.getElementById('customLocationMap').value.trim();
+  if (name && mapLink) {
+    document.getElementById('location').value = name;
+    document.getElementById('stepParty').style.display = 'grid';
+  } else {
+    document.getElementById('location').value = '';
+    document.getElementById('stepParty').style.display = 'none';
+  }
+}
+document.getElementById('customLocationName').addEventListener('input', checkCustomLocationStep);
+document.getElementById('customLocationMap').addEventListener('input', checkCustomLocationStep);
 
 function populatePartySelects() {
   ['adults', 'children'].forEach(id => {
@@ -679,6 +726,7 @@ document.getElementById('bookingForm').addEventListener('submit', async (e) => {
     email: document.getElementById('email').value,
     phone: document.getElementById('phone').value,
     location: document.getElementById('location').value,
+    locationMapLink: document.getElementById('customLocationMap').value,
     adults: document.getElementById('adults').value,
     children: document.getElementById('children').value,
     notes: document.getElementById('notes').value,
