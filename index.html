@@ -353,7 +353,7 @@ function renderBusinessHeader() {
   else document.getElementById('socialFacebook').style.display = 'none';
 }
 
-const FRONTEND_VERSION = '2026-07-27.1';
+const FRONTEND_VERSION = '2026-07-27.2';
 
 function escapeHtml(str) {
   if (str === undefined || str === null) return '';
@@ -440,6 +440,7 @@ function renderPackages() {
     const hero = card.querySelector('.pkg-hero');
     if (p.photoUrl) {
       hero.style.backgroundImage = "url('" + p.photoUrl + "')";
+      hero.style.backgroundPosition = p.photoPosition || 'center';
     } else {
       hero.style.backgroundImage = PKG_GRADIENTS[i % PKG_GRADIENTS.length];
     }
@@ -468,6 +469,7 @@ function populateLocations() {
     const hero = card.querySelector('.loc-hero');
     if (loc.photoUrl) {
       hero.style.backgroundImage = "url('" + loc.photoUrl + "')";
+      hero.style.backgroundPosition = loc.photoPosition || 'center';
       hero.style.backgroundSize = 'cover';
       hero.style.backgroundPosition = 'center';
     } else {
